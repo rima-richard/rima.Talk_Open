@@ -94,7 +94,7 @@ import UIKit
 
         // Set the rightButton early, to allow sizing the textInputbar correctly
         self.rightButton.setTitle("", for: .normal)
-        self.setInputbarImage(UIImage(systemName: "paperplane"), for: self.rightButton)
+        self.setInputbarImage(UIImage(systemName: "arrow.up"), for: self.rightButton)
         self.rightButton.accessibilityLabel = NSLocalizedString("Send message", comment: "")
         self.rightButton.accessibilityHint = NSLocalizedString("Double tap to send message", comment: "")
 

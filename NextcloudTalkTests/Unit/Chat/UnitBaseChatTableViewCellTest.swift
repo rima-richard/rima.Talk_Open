@@ -8,6 +8,128 @@ import XCTest
 
 final class UnitBaseChatTableViewCellTest: TestBaseRealm {
 
+    private func layoutMessage(_ text: String, own: Bool, account: TalkAccount, room: NCRoom, id: Int) -> NCChatMessage {
+        let message = NCChatMessage()
+        message.messageId = id
+        message.internalId = "layout-\(id)"
+        message.accountId = account.accountId
+        message.token = room.token
+        message.actorId = own ? account.userId : "layout-colleague"
+        message.actorType = "users"
+        message.actorDisplayName = own ? "Ich" : "Team"
+        message.message = text
+        message.timestamp = 1_790_000_000 + id * 60
+        return message
+    }
+
+    func testPrivateBubbleRowsFitLongTextAtPhoneWidths() throws {
+        let account = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = NCRoom()
+        room.type = .oneToOne
+        room.token = "layout-test"
+        room.accountId = account.accountId
+        let controller = BaseChatViewController(forRoom: room, withAccount: account)!
+
+        for width: CGFloat in [320, 393, 430] {
+            for own in [false, true] {
+                let message = layoutMessage(String(repeating: "Ein längerer Text soll vollständig lesbar bleiben. ", count: 6),
+                                            own: own, account: account, room: room, id: own ? 1 : 2)
+                let cell: BaseChatTableViewCell = .fromNib()
+                cell.setup(for: message, inRoom: room, forThread: nil, withAccount: account)
+                let height = controller.getCellHeight(for: message, with: width - chatMessageCellAvatarHeight)
+                cell.frame = CGRect(x: 0, y: 0, width: width, height: height)
+                cell.setNeedsLayout()
+                cell.layoutIfNeeded()
+                let textView = try XCTUnwrap(cell.messageTextView)
+                let requiredHeight = textView.sizeThatFits(CGSize(width: textView.bounds.width, height: .greatestFiniteMagnitude)).height
+                XCTAssertGreaterThan(textView.bounds.width, 0)
+                XCTAssertLessThanOrEqual(requiredHeight, textView.bounds.height + 1, "Text clipped at width \(width), own \(own)")
+                XCTAssertTrue(cell.avatarButton.isHidden)
+                XCTAssertTrue(cell.headerPart.isHidden)
+                XCTAssertFalse(cell.footerPart.isDescendant(of: cell.bubbleView))
+                XCTAssertLessThanOrEqual(cell.bubbleStackView.frame.maxY, height + 1)
+                XCTAssertLessThanOrEqual(cell.bubbleView.bounds.width, width - 76 + 1)
+            }
+        }
+    }
+
+    func testPrivateToGroupReuseRestoresSenderAndNativeLayoutPreviews() throws {
+        let account = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = NCRoom()
+        room.type = .oneToOne
+        room.token = "layout-preview"
+        room.accountId = account.accountId
+        let controller = BaseChatViewController(forRoom: room, withAccount: account)!
+        let texts = [
+            ("Guten Morgen! Ist das Team schon unterwegs?", false),
+            ("Ja, alles vorbereitet. 👍", true),
+            ("Perfekt, danke!\nIch melde mich nach der Besprechung noch einmal.", false),
+            ("Alles klar.", true)
+        ]
+
+        for style in [UIUserInterfaceStyle.light, .dark] {
+            let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
+            let window = UIWindow(windowScene: scene)
+            window.frame = CGRect(x: 0, y: 0, width: 393, height: 800)
+            let host = UIViewController()
+            host.overrideUserInterfaceStyle = style
+            window.rootViewController = host
+            window.isHidden = false
+            defer { window.isHidden = true }
+            // Like a real table's cells, the specimen starts below the window's top safe area.
+            let preview = UIView(frame: CGRect(x: 0, y: 100, width: 393, height: 500))
+            preview.overrideUserInterfaceStyle = style
+            preview.backgroundColor = .systemBackground
+            host.view.addSubview(preview)
+            var y: CGFloat = 16
+            for (index, item) in texts.enumerated() {
+                let message = layoutMessage(item.0, own: item.1, account: account, room: room, id: index + 10)
+                let cell: BaseChatTableViewCell = .fromNib()
+                cell.overrideUserInterfaceStyle = style
+                var height: CGFloat = 0
+                UITraitCollection(userInterfaceStyle: style).performAsCurrent {
+                    cell.setup(for: message, inRoom: room, forThread: nil, withAccount: account)
+                    height = controller.getCellHeight(for: message, with: 393 - chatMessageCellAvatarHeight)
+                }
+                cell.frame = CGRect(x: 0, y: y, width: 393, height: height)
+                preview.addSubview(cell)
+                cell.setNeedsLayout()
+                cell.layoutIfNeeded()
+                XCTAssertEqual(cell.traitCollection.userInterfaceStyle, style)
+                let textView = try XCTUnwrap(cell.messageTextView)
+                let requiredHeight = textView.sizeThatFits(CGSize(width: textView.bounds.width, height: .greatestFiniteMagnitude)).height
+                XCTAssertLessThanOrEqual(requiredHeight, textView.bounds.height + 1)
+                XCTAssertLessThanOrEqual(cell.bubbleView.layer.cornerRadius, cell.bubbleView.bounds.height / 2,
+                                         "Short bubbles must not retain a radius from a taller layout")
+                y += height
+            }
+            let typing = TypingIndicatorView(frame: CGRect(x: 12, y: y + 12, width: 369, height: 30))
+            preview.addSubview(typing)
+            typing.addTyping(userIdentifier: "layout-colleague", displayName: "Team")
+            preview.layoutIfNeeded()
+            preview.frame.size.height = y + 66
+            host.view.layoutIfNeeded()
+            // Allow TextKit's display layers to settle before taking the offscreen specimen.
+            RunLoop.main.run(until: Date().addingTimeInterval(0.25))
+            let image = UIGraphicsImageRenderer(bounds: preview.bounds).image { context in
+                preview.layer.render(in: context.cgContext)
+            }
+            let attachment = XCTAttachment(image: image)
+            attachment.name = style == .dark ? "RimaChat-Layout-Dark" : "RimaChat-Layout-Light"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
+
+        let message = layoutMessage("Nachricht im Team", own: false, account: account, room: room, id: 30)
+        let reusedCell: BaseChatTableViewCell = .fromNib()
+        reusedCell.setup(for: message, inRoom: room, forThread: nil, withAccount: account)
+        reusedCell.prepareForReuse()
+        room.type = .group
+        reusedCell.setup(for: message, inRoom: room, forThread: nil, withAccount: account)
+        XCTAssertFalse(reusedCell.avatarButton.isHidden)
+        XCTAssertFalse(reusedCell.headerPart.isHidden)
+    }
+
     // MARK: - Reactions
 
     private func makeReactionsView(inContainerOfWidth width: CGFloat) -> (container: UIView, reactionsView: ReactionsView) {

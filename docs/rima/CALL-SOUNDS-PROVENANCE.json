@@ -1,0 +1,35 @@
+{
+  "incoming_default": "Resonanz",
+  "incoming_alternative": "Bogen",
+  "selection": "Settings > Call ringtone; CallKit configuration updated without recreating the provider",
+  "outgoing_progress": {
+    "source": "Sources/WorkspaceSystemCalls.swift:updateRingback",
+    "frequency_hz": 440,
+    "tone_seconds": 1,
+    "silence_seconds": 4,
+    "sample_rate": 16000,
+    "volume": 0.45,
+    "note": "Local call progress only; does not prove remote audible ringing"
+  },
+  "assets": [
+    {
+      "file": "Sounds/05-anruf-resonanz.wav",
+      "source_file": "Sounds/05-anruf-resonanz.wav",
+      "sha256": "9bd5b5cf4ac85b29b2f314d0b0edd6bdc5de9a3a8e678739bb1fbff315c0811d",
+      "duration_seconds": 6.6,
+      "sample_rate": 48000,
+      "channels": 1,
+      "sample_width_bytes": 2
+    },
+    {
+      "file": "Sounds/06-anruf-bogen.wav",
+      "source_file": "Sounds/06-anruf-bogen.wav",
+      "sha256": "06a79f9e189ee749a8e348ff11901284326d1b37c1c77b0c9159cbe79c3ee606",
+      "duration_seconds": 6.6,
+      "sample_rate": 48000,
+      "channels": 1,
+      "sample_width_bytes": 2
+    }
+  ],
+  "source": "rima Pflege GmbH shared call tones; reused for rima.Chat"
+}

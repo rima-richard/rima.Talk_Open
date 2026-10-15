@@ -6,7 +6,39 @@
 import XCTest
 @testable import NextcloudTalk
 
+private final class CallActionCaptureChatViewController: ChatViewController {
+    var requestedVideo: Bool?
+
+    override func startCall(withVideo video: Bool, silently: Bool, button: BarButtonItemWithActivity) {
+        requestedVideo = video
+    }
+}
+
 final class UnitChatViewControllerTest: TestBaseRealm {
+
+    func testDirectAudioAndVideoActionsHaveNoOptionsMenu() {
+        let account = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = NCRoom()
+        room.token = "direct-call-controls"
+        room.accountId = account.accountId
+        let controller = CallActionCaptureChatViewController(forRoom: room, withAccount: account)!
+        let audio = controller.makeDirectCallButton(withVideo: false)
+        let video = controller.makeDirectCallButton(withVideo: true)
+        XCTAssertNil(audio.innerButton.menu)
+        XCTAssertNil(video.innerButton.menu)
+        XCTAssertFalse(audio.innerButton.showsMenuAsPrimaryAction)
+        XCTAssertFalse(video.innerButton.showsMenuAsPrimaryAction)
+        XCTAssertEqual(audio.innerButton.accessibilityLabel, NSLocalizedString("Start call", comment: ""))
+        XCTAssertEqual(video.innerButton.accessibilityLabel, NSLocalizedString("Start video call", comment: ""))
+        audio.innerButton.sendActions(for: .touchUpInside)
+        XCTAssertEqual(controller.requestedVideo, false)
+        video.innerButton.sendActions(for: .touchUpInside)
+        XCTAssertEqual(controller.requestedVideo, true)
+        controller.requestedVideo = nil
+        audio.isEnabled = false
+        audio.innerButton.sendActions(for: .touchUpInside)
+        XCTAssertNil(controller.requestedVideo)
+    }
 
     func testExpireMessages() throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()

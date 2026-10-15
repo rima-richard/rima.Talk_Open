@@ -30,6 +30,7 @@ enum AccountSettingsOptions: Int {
 enum ConfigurationSectionOption: Int {
     case kConfigurationSectionOptionVideo = 0
     case kConfigurationSectionOptionRecents
+    case kConfigurationSectionOptionCallTone
 }
 
 enum AdvancedSectionOption: Int {
@@ -42,6 +43,7 @@ enum AdvancedSectionOption: Int {
 enum AboutSection: Int {
     case kAboutSectionPrivacy = 0
     case kAboutSectionSourceCode
+    case kAboutSectionSupport
 }
 
 class SettingsTableViewController: UITableViewController, UITextFieldDelegate, UserStatusViewDelegate, CallsFromOldAccountViewControllerDelegate {
@@ -184,6 +186,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
         // Video quality
         options.append(ConfigurationSectionOption.kConfigurationSectionOptionVideo.rawValue)
+        options.append(ConfigurationSectionOption.kConfigurationSectionOptionCallTone.rawValue)
 
         // Calls in recents
         options.append(ConfigurationSectionOption.kConfigurationSectionOptionRecents.rawValue)
@@ -212,13 +215,14 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     func getAboutSectionOptions() -> [Int] {
         var options = [Int]()
 
+        options.append(AboutSection.kAboutSectionSupport.rawValue)
+
         // Privacy
         options.append(AboutSection.kAboutSectionPrivacy.rawValue)
 
         // Source code
-        if !isBrandedApp.boolValue {
-            options.append(AboutSection.kAboutSectionSourceCode.rawValue)
-        }
+        // This edition includes its corresponding source and license texts.
+        options.append(AboutSection.kAboutSectionSourceCode.rawValue)
 
         return options
     }
@@ -452,6 +456,25 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         }
         // Reload to update configuration section footer
         self.tableView.reloadData()
+    }
+
+    func presentRimaCallToneSelector() {
+        let sheet = UIAlertController(title: NSLocalizedString("Call ringtone", comment: ""), message: nil, preferredStyle: .actionSheet)
+        let indexPath = getIndexPathForConfigurationOption(option: .kConfigurationSectionOptionCallTone)
+        for tone in RimaCallTone.allCases {
+            let action = UIAlertAction(title: tone.title, style: .default) { _ in
+                tone.store()
+                self.tableView.reloadRows(at: [indexPath], with: .none)
+            }
+            if tone == RimaCallTone.selected() {
+                action.setValue(UIImage(named: "checkmark")?.withRenderingMode(.alwaysOriginal), forKey: "image")
+            }
+            sheet.addAction(action)
+        }
+        sheet.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel))
+        sheet.popoverPresentationController?.sourceView = tableView
+        sheet.popoverPresentationController?.sourceRect = tableView.rectForRow(at: indexPath)
+        present(sheet, animated: true)
     }
 
     @objc func readStatusValueChanged(_ sender: Any?) {
@@ -749,6 +772,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         switch option {
         case ConfigurationSectionOption.kConfigurationSectionOptionVideo.rawValue:
             self.presentVideoResoultionsSelector()
+        case ConfigurationSectionOption.kConfigurationSectionOptionCallTone.rawValue:
+            self.presentRimaCallToneSelector()
         default:
             break
         }
@@ -775,14 +800,25 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         let options = getAboutSectionOptions()
         let option = options[indexPath.row]
         switch option {
+        case AboutSection.kAboutSectionSupport.rawValue:
+            let safariVC = SFSafariViewController(url: URL(string: supportURL)!)
+            self.present(safariVC, animated: true)
         case AboutSection.kAboutSectionPrivacy.rawValue:
             if let url = URL(string: privacyURL), ["http", "https"].contains(url.scheme?.lowercased() ?? "") {
                 let safariVC = SFSafariViewController(url: url)
                 self.present(safariVC, animated: true, completion: nil)
             }
         case AboutSection.kAboutSectionSourceCode.rawValue:
-            let safariVC = SFSafariViewController(url: URL(string: "https://github.com/nextcloud/talk-ios")!)
-            self.present(safariVC, animated: true, completion: nil)
+            if let source = Bundle.main.url(forResource: "rima.Chat-source", withExtension: "zip") {
+                let share = UIActivityViewController(activityItems: [source], applicationActivities: nil)
+                share.popoverPresentationController?.sourceView = tableView
+                share.popoverPresentationController?.sourceRect = tableView.rectForRow(at: indexPath)
+                present(share, animated: true)
+            } else {
+                // Development checkouts generate the package when archiving.
+                let safariVC = SFSafariViewController(url: URL(string: supportURL)!)
+                present(safariVC, animated: true)
+            }
         default:
             break
         }
@@ -913,6 +949,17 @@ extension SettingsTableViewController {
 
             return cell
 
+        case ConfigurationSectionOption.kConfigurationSectionOptionCallTone.rawValue:
+            let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: configurationCellIdentifier, style: .default)
+            cell.textLabel?.text = NSLocalizedString("Call ringtone", comment: "")
+            cell.setSettingsImage(image: UIImage(systemName: "bell.badge")?.applyingSymbolConfiguration(iconConfiguration))
+            let label = UILabel()
+            label.text = RimaCallTone.selected().title
+            label.textColor = .secondaryLabel
+            label.sizeToFit()
+            cell.accessoryView = label
+            return cell
+
         case ConfigurationSectionOption.kConfigurationSectionOptionRecents.rawValue:
             let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: configurationCellIdentifier, style: .default)
             cell.textLabel?.text = NSLocalizedString("Include calls in call history", comment: "")
@@ -994,6 +1041,11 @@ extension SettingsTableViewController {
         let option = options[indexPath.row]
 
         switch option {
+        case AboutSection.kAboutSectionSupport.rawValue:
+            let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: aboutCellIdentifier, style: .default)
+            cell.textLabel?.text = NSLocalizedString("Support and report content", comment: "")
+            cell.setSettingsImage(image: UIImage(systemName: "lifepreserver")?.applyingSymbolConfiguration(iconConfiguration))
+            return cell
         case AboutSection.kAboutSectionPrivacy.rawValue:
             let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: aboutCellIdentifier, style: .default)
             cell.textLabel?.text = NSLocalizedString("Privacy", comment: "")
@@ -1002,7 +1054,7 @@ extension SettingsTableViewController {
 
         case AboutSection.kAboutSectionSourceCode.rawValue:
             let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: aboutCellIdentifier, style: .default)
-            cell.textLabel?.text = NSLocalizedString("Get source code", comment: "")
+            cell.textLabel?.text = NSLocalizedString("Source code and licenses", comment: "")
             cell.setSettingsImage(image: UIImage(named: "github"))
             return cell
 

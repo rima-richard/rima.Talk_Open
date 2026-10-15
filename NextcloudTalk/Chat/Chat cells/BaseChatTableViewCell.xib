@@ -49,7 +49,7 @@
                                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="lOK-xG-raw" secondAttribute="trailing" placeholder="YES" id="fDp-QE-cu4"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YkE-8o-ls1">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YkE-8o-ls1" customClass="ChatBubbleView" customModule="NextcloudTalk" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="30" width="683" height="584"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="jvd-Fb-cKa">
@@ -78,11 +78,11 @@
                                                     </view>
                                                 </subviews>
                                                 <constraints>
-                                                    <constraint firstAttribute="bottom" secondItem="THT-eK-wa0" secondAttribute="bottom" constant="5" id="BEl-bJ-7y5"/>
-                                                    <constraint firstItem="THT-eK-wa0" firstAttribute="top" secondItem="X2q-XX-H1j" secondAttribute="top" constant="10" id="ZJ3-BO-VvU"/>
+                                                    <constraint firstAttribute="bottom" secondItem="THT-eK-wa0" secondAttribute="bottom" constant="7" id="BEl-bJ-7y5"/>
+                                                    <constraint firstItem="THT-eK-wa0" firstAttribute="top" secondItem="X2q-XX-H1j" secondAttribute="top" constant="8" id="ZJ3-BO-VvU"/>
                                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" id="pn0-mG-K2F"/>
-                                                    <constraint firstItem="THT-eK-wa0" firstAttribute="leading" secondItem="X2q-XX-H1j" secondAttribute="leading" constant="10" id="t41-4t-OXU"/>
-                                                    <constraint firstAttribute="trailing" secondItem="THT-eK-wa0" secondAttribute="trailing" constant="10" id="zfI-Sw-bU2"/>
+                                                    <constraint firstItem="THT-eK-wa0" firstAttribute="leading" secondItem="X2q-XX-H1j" secondAttribute="leading" constant="14" id="t41-4t-OXU"/>
+                                                    <constraint firstAttribute="trailing" secondItem="THT-eK-wa0" secondAttribute="trailing" constant="14" id="zfI-Sw-bU2"/>
                                                 </constraints>
                                             </view>
                                             <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rpi-JE-I3o" userLabel="ReferencePart">
@@ -108,31 +108,6 @@
                                                     <constraint firstItem="sl2-Ye-qSv" firstAttribute="leading" secondItem="xJ1-vA-lap" secondAttribute="leading" constant="10" id="oXL-DW-XGb"/>
                                                 </constraints>
                                             </view>
-                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="coC-95-bYv" userLabel="FooterPart">
-                                                <rect key="frame" x="0.0" y="564" width="683" height="20"/>
-                                                <subviews>
-                                                    <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TkE-V6-ePd" userLabel="StatusView">
-                                                        <rect key="frame" x="578" y="0.0" width="99" height="14"/>
-                                                        <subviews>
-                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="1000" text="An artificial date" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YZe-JE-Hfm" userLabel="DateLabel">
-                                                                <rect key="frame" x="0.0" y="0.0" width="99" height="14"/>
-                                                                <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
-                                                                <color key="textColor" systemColor="secondaryLabelColor"/>
-                                                                <nil key="highlightedColor"/>
-                                                            </label>
-                                                        </subviews>
-                                                        <constraints>
-                                                            <constraint firstAttribute="height" constant="14" id="s36-fV-BFI"/>
-                                                        </constraints>
-                                                    </stackView>
-                                                </subviews>
-                                                <constraints>
-                                                    <constraint firstAttribute="height" constant="20" id="2fj-J3-5PD"/>
-                                                    <constraint firstAttribute="trailing" secondItem="TkE-V6-ePd" secondAttribute="trailing" constant="6" id="aaF-IB-abt"/>
-                                                    <constraint firstAttribute="bottom" secondItem="TkE-V6-ePd" secondAttribute="bottom" constant="6" id="bvc-9d-52c"/>
-                                                    <constraint firstItem="TkE-V6-ePd" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="coC-95-bYv" secondAttribute="leading" constant="10" id="fYW-bA-Mq5"/>
-                                                </constraints>
-                                            </view>
                                         </subviews>
                                     </stackView>
                                 </subviews>
@@ -143,11 +118,31 @@
                                     <constraint firstAttribute="trailing" secondItem="jvd-Fb-cKa" secondAttribute="trailing" id="bUJ-1l-Kef"/>
                                     <constraint firstItem="jvd-Fb-cKa" firstAttribute="top" secondItem="YkE-8o-ls1" secondAttribute="top" id="yC8-XD-ZC6"/>
                                 </constraints>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                        <integer key="value" value="8"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="coC-95-bYv" userLabel="FooterPart">
+                                <rect key="frame" x="0.0" y="564" width="683" height="20"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" spacing="3" id="TkE-V6-ePd" userLabel="StatusView">
+                                        <rect key="frame" x="578" y="0.0" width="99" height="14"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="1000" text="An artificial date" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YZe-JE-Hfm" userLabel="DateLabel">
+                                                <rect key="frame" x="0.0" y="0.0" width="99" height="14"/>
+                                                <fontDescription key="fontDescription" style="UICTFontTextStyleCaption2"/>
+                                                <color key="textColor" systemColor="secondaryLabelColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="14" id="s36-fV-BFI"/>
+                                        </constraints>
+                                    </stackView>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="20" id="2fj-J3-5PD"/>
+                                    <constraint firstAttribute="trailing" secondItem="TkE-V6-ePd" secondAttribute="trailing" constant="6" id="aaF-IB-abt"/>
+                                    <constraint firstAttribute="bottom" secondItem="TkE-V6-ePd" secondAttribute="bottom" constant="3" id="bvc-9d-52c"/>
+                                    <constraint firstItem="TkE-V6-ePd" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="coC-95-bYv" secondAttribute="leading" constant="10" id="fYW-bA-Mq5"/>
+                                </constraints>
                             </view>
                         </subviews>
                     </stackView>
@@ -155,7 +150,7 @@
                 <viewLayoutGuide key="safeArea" id="ML2-GP-tWC"/>
                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                 <constraints>
-                    <constraint firstItem="ML2-GP-tWC" firstAttribute="bottom" secondItem="B4m-dY-lBS" secondAttribute="bottom" constant="8" id="13D-fM-jn1"/>
+                    <constraint firstItem="ML2-GP-tWC" firstAttribute="bottom" secondItem="B4m-dY-lBS" secondAttribute="bottom" constant="3" id="13D-fM-jn1"/>
                     <constraint firstItem="ML2-GP-tWC" firstAttribute="trailing" secondItem="B4m-dY-lBS" secondAttribute="trailing" constant="10" placeholder="YES" id="3t8-WP-ThF"/>
                     <constraint firstItem="B4m-dY-lBS" firstAttribute="top" secondItem="ML2-GP-tWC" secondAttribute="top" constant="8" id="5uM-yP-xfU"/>
                     <constraint firstItem="PCA-MF-seG" firstAttribute="leading" secondItem="ML2-GP-tWC" secondAttribute="leading" constant="10" id="LnM-15-nOb"/>
@@ -167,6 +162,7 @@
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <connections>
                 <outlet property="avatarButton" destination="PCA-MF-seG" id="iaG-3y-X5d"/>
+                <outlet property="bubbleTopConstraint" destination="5uM-yP-xfU" id="rima-bubble-top"/>
                 <outlet property="bubbleStackView" destination="B4m-dY-lBS" id="koP-dP-AXC"/>
                 <outlet property="bubbleView" destination="YkE-8o-ls1" id="i70-JV-58t"/>
                 <outlet property="dateLabel" destination="YZe-JE-Hfm" id="Uuc-gI-EWf"/>

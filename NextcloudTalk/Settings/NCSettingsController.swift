@@ -58,7 +58,11 @@ public class NCSettingsController: NSObject {
 
     private typealias AccountId = String
 
-    public var videoSettingsModel = ARDSettingsModel()
+    public var videoSettingsModel: ARDSettingsModel = {
+        let model = ARDSettingsModel()
+        RimaVideoDefaults.apply(defaults: .standard, store: model.storeVideoResolutionSetting)
+        return model
+    }()
     private var signalingConfigurations: [AccountId: SignalingSettings] = [:]
     private var externalSignalingControllers: [AccountId: NCExternalSignalingController] = [:]
 
@@ -698,11 +702,7 @@ public class NCSettingsController: NSObject {
 
             NCAPIController.sharedInstance().subscribeAccount(account, toPushServerWithCompletionBlock: { error in
                 guard error == nil else {
-                    NCLog.log("Error while subscribing to Push Notification server. Error: \(error?.localizedDescription ?? "")")
-                    NCLog.log("Push notification, public key: \(publicKey)")
-                    NCLog.log("Push notification, device signature: \(signature)")
-                    NCLog.log("Push notification, device identifier: \(deviceIdentifier)")
-                    NCKeyChainController.sharedInstance().logCombinedPushToken()
+                    NCLog.log("Push proxy subscription failed; bounded development status captured.")
                     block?(false)
                     bgTask.stopBackgroundTask()
                     return
@@ -720,5 +720,15 @@ public class NCSettingsController: NSObject {
 #else
         block?(true)
 #endif
+    }
+}
+
+/// Apply the requested HD baseline once, without overriding later manual choices.
+enum RimaVideoDefaults {
+    static let migrationKey = "rima.video.hdDefaultApplied.v1"
+
+    static func apply(defaults: UserDefaults, store: (String) -> Bool) {
+        guard !defaults.bool(forKey: migrationKey), store("1280x720") else { return }
+        defaults.set(true, forKey: migrationKey)
     }
 }

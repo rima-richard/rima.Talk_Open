@@ -110,7 +110,7 @@
 		2B4BED05DC4A4EB4761A6C87 /* libPods-TalkIntents.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 237121A4908D37D7D5CC71A4 /* libPods-TalkIntents.a */; };
 		2C0574851EDD9E8E00D9E7F2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0574841EDD9E8E00D9E7F2 /* AppDelegate.swift */; };
 		2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */; };
-		2C1D13A3253760EE00EC0533 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C1D13A1253760EE00EC0533 /* LaunchScreen.xib */; };
+		2C1D13A3253760EE00EC0533 /* RimaLaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C1D13A1253760EE00EC0533 /* RimaLaunchScreen.xib */; };
 		2C3195BE24C5A7410066F221 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CA1CCAB1F067F35002FE6A2 /* Images.xcassets */; };
 		2C330372255E6EBC00BDB4E4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C330374255E6EBC00BDB4E4 /* InfoPlist.strings */; };
 		2C349B802D71A030004EC882 /* SwiftyXMLParser in Frameworks */ = {isa = PBXBuildFile; productRef = 2C349B7F2D71A030004EC882 /* SwiftyXMLParser */; };
@@ -161,6 +161,12 @@
 		847EFC7236336B67A1A89358 /* libPods-BroadcastUploadExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A3D305FCD7BF7E727A62F35 /* libPods-BroadcastUploadExtension.a */; };
 		8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 684807120F4439797973DF73 /* libPods-ShareExtension.a */; };
 		9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */; };
+		A13A20261015000000000003 /* rima.Chat-source.zip in Resources */ = {isa = PBXBuildFile; fileRef = A13A20261015000000000001 /* rima.Chat-source.zip */; };
+		A13A20261015000000000004 /* AFNetworking_Privacy.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A13A20261015000000000002 /* AFNetworking_Privacy.bundle */; };
+		A13A20261015000000000005 /* AFNetworking_Privacy.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A13A20261015000000000002 /* AFNetworking_Privacy.bundle */; };
+		A13A20261015000000000006 /* AFNetworking_Privacy.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A13A20261015000000000002 /* AFNetworking_Privacy.bundle */; };
+		A13A20261015000000000007 /* AFNetworking_Privacy.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A13A20261015000000000002 /* AFNetworking_Privacy.bundle */; };
+		A13A20261015000000000008 /* AFNetworking_Privacy.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A13A20261015000000000002 /* AFNetworking_Privacy.bundle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -329,7 +335,7 @@
 		2C0574841EDD9E8E00D9E7F2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2C05748D1EDD9E8E00D9E7F2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		2C0574941EDD9E8E00D9E7F2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		2C1D13A2253760EE00EC0533 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		2C1D13A2253760EE00EC0533 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/RimaLaunchScreen.xib; sourceTree = "<group>"; };
 		2C330373255E6EBC00BDB4E4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2C4446EE265D454200DF1DBC /* NotificationCenterNotifications.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NotificationCenterNotifications.h; sourceTree = "<group>"; };
 		2C4446EF265D454200DF1DBC /* NotificationCenterNotifications.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NotificationCenterNotifications.m; sourceTree = "<group>"; };
@@ -460,6 +466,8 @@
 		95D756208A81284B975853EC /* Pods-ShareExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShareExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-ShareExtension/Pods-ShareExtension.release.xcconfig"; sourceTree = "<group>"; };
 		9A3D305FCD7BF7E727A62F35 /* libPods-BroadcastUploadExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BroadcastUploadExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A13A20261015000000000001 /* rima.Chat-source.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = "Legal/rima.Chat-source.zip"; sourceTree = "<group>"; };
+		A13A20261015000000000002 /* AFNetworking_Privacy.bundle */ = {isa = PBXFileReference; lastKnownFileType = wrapper.cfbundle; path = AFNetworking_Privacy.bundle; sourceTree = "<group>"; };
 		A8F95DE6635ABC1E64CA8E4A /* Pods-BroadcastUploadExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BroadcastUploadExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-BroadcastUploadExtension/Pods-BroadcastUploadExtension.release.xcconfig"; sourceTree = "<group>"; };
 		B7874918820589BF8FD69BED /* Pods-NextcloudTalkTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalkTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalkTests/Pods-NextcloudTalkTests.release.xcconfig"; sourceTree = "<group>"; };
 		D6DF51D976DC0F681FF83F7B /* Pods-NotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1020,6 +1028,8 @@
 		};
 		1F9629252E8E6A2100EC9BEE /* Calls */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Calls;
 			sourceTree = "<group>";
 		};
@@ -1047,6 +1057,8 @@
 		};
 		1F9629362E8E6B8D00EC9BEE /* Database */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Database;
 			sourceTree = "<group>";
 		};
@@ -1063,21 +1075,29 @@
 		};
 		1F9629412E8E6BEB00EC9BEE /* File sharing */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = "File sharing";
 			sourceTree = "<group>";
 		};
 		1F9629422E8E6BFD00EC9BEE /* Login */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Login;
 			sourceTree = "<group>";
 		};
 		1F9629432E8E6C0A00EC9BEE /* Maps */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Maps;
 			sourceTree = "<group>";
 		};
 		1F9629462E8E6C2300EC9BEE /* Media Viewer */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = "Media Viewer";
 			sourceTree = "<group>";
 		};
@@ -1116,11 +1136,15 @@
 		};
 		1F9629722E8E6CB000EC9BEE /* Screensharing */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Screensharing;
 			sourceTree = "<group>";
 		};
 		1F9629732E8E6CC100EC9BEE /* Security */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Security;
 			sourceTree = "<group>";
 		};
@@ -1137,6 +1161,8 @@
 		};
 		1F9629792E8E6CEF00EC9BEE /* Siri */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Siri;
 			sourceTree = "<group>";
 		};
@@ -1165,6 +1191,8 @@
 		};
 		1F9629882E8E6E2900EC9BEE /* Sounds */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Sounds;
 			sourceTree = "<group>";
 		};
@@ -1350,6 +1378,8 @@
 		2C05747F1EDD9E8E00D9E7F2 /* NextcloudTalk */ = {
 			isa = PBXGroup;
 			children = (
+				A13A20261015000000000001 /* rima.Chat-source.zip */,
+				A13A20261015000000000002 /* AFNetworking_Privacy.bundle */,
 				1F9629252E8E6A2100EC9BEE /* Calls */,
 				1F9629262E8E6A6800EC9BEE /* Chat */,
 				1F9629302E8E6B3D00EC9BEE /* Contacts */,
@@ -1382,7 +1412,7 @@
 				2C8D3BAC2FA9DEF900F0A900 /* AppIcon.icon */,
 				1FADECD42B7EACCB007AD94B /* PrivacyInfo.xcprivacy */,
 				2C330374255E6EBC00BDB4E4 /* InfoPlist.strings */,
-				2C1D13A1253760EE00EC0533 /* LaunchScreen.xib */,
+				2C1D13A1253760EE00EC0533 /* RimaLaunchScreen.xib */,
 				2C7F47AC20289B9600081CC7 /* Localizable.strings */,
 				2C477C1828B79D980044DEB4 /* Localizable.stringsdict */,
 				2C05748C1EDD9E8E00D9E7F2 /* Main.storyboard */,
@@ -1941,6 +1971,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A13A20261015000000000005 /* AFNetworking_Privacy.bundle in Resources */,
 				1FA93F362D712A2C00DF6CDF /* Images.xcassets in Resources */,
 				2C8D3BAE2FA9DEF900F0A900 /* AppIcon.icon in Resources */,
 				1FA93F352D712A1F00DF6CDF /* Localizable.strings in Resources */,
@@ -1959,6 +1990,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A13A20261015000000000006 /* AFNetworking_Privacy.bundle in Resources */,
 				1FE7DE332BBC8FA00040EE12 /* PrivacyInfo.xcprivacy in Resources */,
 				2C8D3BAD2FA9DEF900F0A900 /* AppIcon.icon in Resources */,
 			);
@@ -1968,10 +2000,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A13A20261015000000000004 /* AFNetworking_Privacy.bundle in Resources */,
+				A13A20261015000000000003 /* rima.Chat-source.zip in Resources */,
 				2C330372255E6EBC00BDB4E4 /* InfoPlist.strings in Resources */,
 				2C8D3BB02FA9DEF900F0A900 /* AppIcon.icon in Resources */,
 				2C7F47AA20289B9600081CC7 /* Localizable.strings in Resources */,
-				2C1D13A3253760EE00EC0533 /* LaunchScreen.xib in Resources */,
+				2C1D13A3253760EE00EC0533 /* RimaLaunchScreen.xib in Resources */,
 				2CA1CCAC1F067F35002FE6A2 /* Images.xcassets in Resources */,
 				2C05748E1EDD9E8E00D9E7F2 /* Main.storyboard in Resources */,
 				1FE7DE362BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */,
@@ -1983,6 +2017,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A13A20261015000000000007 /* AFNetworking_Privacy.bundle in Resources */,
 				2C3195BE24C5A7410066F221 /* Images.xcassets in Resources */,
 				2C8D3BB12FA9DEF900F0A900 /* AppIcon.icon in Resources */,
 				1F59446625B8EDF5002AD65F /* Localizable.strings in Resources */,
@@ -1994,6 +2029,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A13A20261015000000000008 /* AFNetworking_Privacy.bundle in Resources */,
 				1F53819129195FA4003DA6B7 /* Images.xcassets in Resources */,
 				1F59446225B8EDF5002AD65F /* Localizable.strings in Resources */,
 				1FE7DE352BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */,
@@ -2126,13 +2162,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2147,13 +2179,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NextcloudTalk/Pods-NextcloudTalk-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -2344,12 +2372,12 @@
 			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
-		2C1D13A1253760EE00EC0533 /* LaunchScreen.xib */ = {
+		2C1D13A1253760EE00EC0533 /* RimaLaunchScreen.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
 				2C1D13A2253760EE00EC0533 /* Base */,
 			);
-			name = LaunchScreen.xib;
+			name = RimaLaunchScreen.xib;
 			sourceTree = "<group>";
 		};
 		2C330374255E6EBC00BDB4E4 /* InfoPlist.strings */ = {
@@ -2470,8 +2498,8 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				CURRENT_PROJECT_VERSION = 13;
+				DEVELOPMENT_TEAM = SG6RSBM3XK;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2490,7 +2518,7 @@
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NextcloudTalkTests;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.rima-pflege.chat.NextcloudTalkTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -2514,8 +2542,8 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				CURRENT_PROJECT_VERSION = 13;
+				DEVELOPMENT_TEAM = SG6RSBM3XK;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2533,7 +2561,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NextcloudTalkTests;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.rima-pflege.chat.NextcloudTalkTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "NextcloudTalk/NextcloudTalk-Bridging-Header.h";
@@ -2555,8 +2583,8 @@
 				CODE_SIGN_ENTITLEMENTS = TalkIntents/TalkIntents.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				CURRENT_PROJECT_VERSION = 13;
+				DEVELOPMENT_TEAM = SG6RSBM3XK;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2572,7 +2600,7 @@
 				MARKETING_VERSION = 25.0.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.TalkIntents;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.rima-pflege.chat.TalkIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -2597,8 +2625,8 @@
 				CODE_SIGN_ENTITLEMENTS = TalkIntents/TalkIntents.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				CURRENT_PROJECT_VERSION = 13;
+				DEVELOPMENT_TEAM = SG6RSBM3XK;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2613,7 +2641,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 25.0.2;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.TalkIntents;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.rima-pflege.chat.TalkIntents";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -2633,15 +2661,15 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				CURRENT_PROJECT_VERSION = 13;
+				DEVELOPMENT_TEAM = SG6RSBM3XK;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NextcloudTalkUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.rima-pflege.chat.NextcloudTalkUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -2662,14 +2690,14 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				CURRENT_PROJECT_VERSION = 13;
+				DEVELOPMENT_TEAM = SG6RSBM3XK;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NextcloudTalkUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.rima-pflege.chat.NextcloudTalkUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -2690,11 +2718,11 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BroadcastUploadExtension/BroadcastUploadExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				CURRENT_PROJECT_VERSION = 13;
+				DEVELOPMENT_TEAM = SG6RSBM3XK;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -2703,7 +2731,7 @@
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BroadcastUploadExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Nextcloud Talk";
+				INFOPLIST_KEY_CFBundleDisplayName = rima.Chat;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2714,7 +2742,7 @@
 				MARKETING_VERSION = 25.0.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.BroadcastUploadExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.rima-pflege.chat.BroadcastUploadExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = APP_EXTENSION;
@@ -2735,11 +2763,11 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BroadcastUploadExtension/BroadcastUploadExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				CURRENT_PROJECT_VERSION = 13;
+				DEVELOPMENT_TEAM = SG6RSBM3XK;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -2748,7 +2776,7 @@
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BroadcastUploadExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Nextcloud Talk";
+				INFOPLIST_KEY_CFBundleDisplayName = rima.Chat;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2758,7 +2786,7 @@
 				);
 				MARKETING_VERSION = 25.0.2;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.BroadcastUploadExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.rima-pflege.chat.BroadcastUploadExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = APP_EXTENSION;
@@ -2803,7 +2831,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEFINES_MODULE = YES;
@@ -2863,7 +2891,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = YES;
@@ -2890,16 +2918,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4202C63030F0FFBB1C16D75E /* Pods-NextcloudTalk.debug.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = RimaTalkBubble;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = NextcloudTalk/NextcloudTalk.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 13;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				DEVELOPMENT_TEAM = SG6RSBM3XK;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -2921,7 +2949,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MARKETING_VERSION = 25.0.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.rima-pflege.chat";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "NextcloudTalk/NextcloudTalk-Bridging-Header.h";
@@ -2935,16 +2963,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4D4C7BF2F97F47B0D9094618 /* Pods-NextcloudTalk.release.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = RimaTalkBubble;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = NextcloudTalk/NextcloudTalk.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_ENTITLEMENTS = NextcloudTalk/NextcloudTalk.Release.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 13;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				DEVELOPMENT_TEAM = SG6RSBM3XK;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -2966,7 +2994,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MARKETING_VERSION = 25.0.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.rima-pflege.chat";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "NextcloudTalk/NextcloudTalk-Bridging-Header.h";
@@ -2993,12 +3021,12 @@
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 13;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				DEVELOPMENT_TEAM = SG6RSBM3XK;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -3053,7 +3081,7 @@
 				MARKETING_VERSION = 25.0.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.ShareExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.rima-pflege.chat.ShareExtension";
 				PRODUCT_NAME = ShareExtension;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = APP_EXTENSION;
@@ -3084,12 +3112,12 @@
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 13;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				DEVELOPMENT_TEAM = SG6RSBM3XK;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -3143,7 +3171,7 @@
 				);
 				MARKETING_VERSION = 25.0.2;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.ShareExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.rima-pflege.chat.ShareExtension";
 				PRODUCT_NAME = ShareExtension;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = APP_EXTENSION;
@@ -3173,11 +3201,11 @@
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = NotificationServiceExtension/NotificationServiceExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				CURRENT_PROJECT_VERSION = 13;
+				DEVELOPMENT_TEAM = SG6RSBM3XK;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -3215,7 +3243,7 @@
 				MARKETING_VERSION = 25.0.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NotificationServiceExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.rima-pflege.chat.NotificationServiceExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = APP_EXTENSION;
@@ -3245,11 +3273,11 @@
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = NotificationServiceExtension/NotificationServiceExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				CURRENT_PROJECT_VERSION = 13;
+				DEVELOPMENT_TEAM = SG6RSBM3XK;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -3286,7 +3314,7 @@
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MARKETING_VERSION = 25.0.2;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NotificationServiceExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.rima-pflege.chat.NotificationServiceExtension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = APP_EXTENSION;

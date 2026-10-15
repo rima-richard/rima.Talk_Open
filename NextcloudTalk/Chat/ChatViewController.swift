@@ -38,7 +38,6 @@ import SwiftUI
     private var generateSummaryFromMessageId: Int?
     private var generateSummaryTimer: Timer?
 
-    private var startCallSilently: Bool = false
 
     private var currentTopContentInset: CGFloat = 0
 
@@ -114,19 +113,31 @@ import SwiftUI
 
     // MARK: - Buttons in NavigationBar
 
-    func getCallOptionsBarButton() -> BarButtonItemWithActivity {
+    func makeDirectCallButton(withVideo video: Bool) -> BarButtonItemWithActivity {
         let button = BarButtonItemWithActivity(image: UIImage())
-        configureCallButtonAsInCall(button: button, inCall: room.hasCall)
-        setupCallOptionsBarButtonMenu(button: button)
-
+        configureCallButtonAsInCall(button: button, inCall: room.hasCall, withVideo: video)
+        button.innerButton.addAction(UIAction { [weak self, weak button] _ in
+            guard let self, let button, button.isEnabled,
+                  !self.audioCallButton.activityIndicator.isAnimating,
+                  !self.videoCallButton.activityIndicator.isAnimating else { return }
+            self.startCall(withVideo: video, silently: false, button: button)
+        }, for: .touchUpInside)
+        let identifier = video ? "Video call" : "Voice only call"
+        button.accessibilityIdentifier = identifier
+        button.innerButton.accessibilityIdentifier = identifier
         return button
     }
 
-    func configureCallButtonAsInCall(button: BarButtonItemWithActivity, inCall: Bool) {
+    func configureCallButtonAsInCall(button: BarButtonItemWithActivity, inCall: Bool, withVideo video: Bool = false) {
         let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 16)
-        let imageName = inCall ? "phone.fill" : "phone"
+        let imageName = video ? (inCall ? "video.fill" : "video") : (inCall ? "phone.fill" : "phone")
         let image = UIImage(systemName: imageName, withConfiguration: symbolConfiguration) ?? UIImage()
         button.setImage(image)
+        let label = video
+            ? (inCall ? NSLocalizedString("Join video call", comment: "") : NSLocalizedString("Start video call", comment: ""))
+            : (inCall ? NSLocalizedString("Join call", comment: "") : NSLocalizedString("Start call", comment: ""))
+        button.accessibilityLabel = label
+        button.innerButton.accessibilityLabel = label
 
         let callButtonColor: UIColor = inCall ? .systemGreen : .clear
 
@@ -138,59 +149,11 @@ import SwiftUI
         }
     }
 
-    func setupCallOptionsBarButtonMenu(button: BarButtonItemWithActivity) {
-        let audioCallAction = UIAction(title: NSLocalizedString("Start call", comment: ""),
-                                       subtitle: NSLocalizedString("Only audio and screen shares", comment: ""),
-                                       image: UIImage(systemName: "phone")) { [unowned self] _ in
-            startCall(withVideo: false, silently: startCallSilently, button: button)
+    private func setCallButtonsEnabled(_ enabled: Bool) {
+        for button in [audioCallButton, videoCallButton] {
+            button.isEnabled = enabled
+            button.innerButton.isEnabled = enabled
         }
-
-        audioCallAction.accessibilityIdentifier = "Voice only call"
-        audioCallAction.accessibilityHint = NSLocalizedString("Double tap to start a voice only call", comment: "")
-
-        let videoCallAction = UIAction(title: NSLocalizedString("Start video call", comment: ""),
-                                       subtitle: NSLocalizedString("Audio, video and screen shares", comment: ""),
-                                       image: UIImage(systemName: "video")) { [unowned self] _ in
-            startCall(withVideo: true, silently: startCallSilently, button: button)
-        }
-
-        videoCallAction.accessibilityIdentifier = "Video call"
-        videoCallAction.accessibilityHint = NSLocalizedString("Double tap to start a video call", comment: "")
-
-        if self.room.hasCall {
-            audioCallAction.title = NSLocalizedString("Join call", comment: "")
-            videoCallAction.title = NSLocalizedString("Join video call", comment: "")
-        } else if self.startCallSilently {
-            audioCallAction.title = NSLocalizedString("Start call silently", comment: "")
-            videoCallAction.title = NSLocalizedString("Start video call silently", comment: "")
-        }
-
-        var callOptions: [UIMenuElement] = [audioCallAction, videoCallAction]
-
-        // Only show silent call option when starting a call (not when joining)
-        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.silentCall, for: self.room), !room.hasCall {
-            var silentImage = UIImage(systemName: "bell.slash")
-
-            if startCallSilently {
-                silentImage =  UIImage(systemName: "bell.slash.fill")?.withTintColor(.systemRed, renderingMode: .alwaysOriginal)
-            }
-
-            let silentCallAction = UIAction(title: NSLocalizedString("Call without notification", comment: ""),
-                                            image: silentImage) { [unowned self] _ in
-                startCallSilently.toggle()
-                setupCallOptionsBarButtonMenu(button: button)
-            }
-
-            silentCallAction.attributes = [.keepsMenuPresented]
-            silentCallAction.accessibilityIdentifier = "Call without notification"
-            silentCallAction.accessibilityHint = NSLocalizedString("Double tap to enable or disable 'Call without notification' option", comment: "")
-
-            let silentMenu = UIMenu(title: "", options: [.displayInline], children: [silentCallAction])
-            callOptions.append(silentMenu)
-        }
-
-        button.innerButton.menu = UIMenu(title: "", children: callOptions)
-        button.innerButton.showsMenuAsPrimaryAction = true
     }
 
     func startCall(withVideo video: Bool, silently: Bool, button: BarButtonItemWithActivity) {
@@ -358,14 +321,8 @@ import SwiftUI
         present(alert, animated: true)
     }
 
-    private lazy var callOptionsButton: BarButtonItemWithActivity = {
-        let callOptionsButton = self.getCallOptionsBarButton()
-
-        callOptionsButton.accessibilityLabel = NSLocalizedString("Call options", comment: "")
-        callOptionsButton.accessibilityHint = NSLocalizedString("Double tap to display call options", comment: "")
-
-        return callOptionsButton
-    }()
+    private lazy var audioCallButton = makeDirectCallButton(withVideo: false)
+    private lazy var videoCallButton = makeDirectCallButton(withVideo: true)
 
     private lazy var optionMenuButton: BarButtonItemWithActivity = {
         let symbolConfiguration = UIImage.SymbolConfiguration(pointSize: 16)
@@ -624,13 +581,9 @@ import SwiftUI
             // Thread notifications
             barButtonsItems.append(threadNotificationButton)
         } else {
-            // Option menu
-            if room.supportsUpcomingEvents || room.supportsThreading {
-                barButtonsItems.append(optionMenuButton)
-            }
-            // Call options
+            // Direct audio/video actions keep the conversation header focused on communication.
             if room.supportsCalling {
-                barButtonsItems.append(callOptionsButton)
+                barButtonsItems.append(contentsOf: [videoCallButton, audioCallButton])
             }
             // Classified conversation indicator
             if room.isClassified {
@@ -729,7 +682,7 @@ import SwiftUI
             self.leaveChat()
         }
 
-        self.callOptionsButton.hideIndicator()
+        [self.audioCallButton, self.videoCallButton].forEach { $0.hideIndicator() }
     }
 
     public override func viewDidLayoutSubviews() {
@@ -836,8 +789,8 @@ import SwiftUI
     func disableRoomControls() {
         self.titleView?.isUserInteractionEnabled = false
 
-        self.callOptionsButton.hideIndicator()
-        self.callOptionsButton.isEnabled = false
+        [self.audioCallButton, self.videoCallButton].forEach { $0.hideIndicator() }
+        self.setCallButtonsEnabled(false)
 
         self.rightButton.isEnabled = false
         self.leftButton.isEnabled = false
@@ -847,7 +800,7 @@ import SwiftUI
         if hasJoinedRoom, !offlineMode {
             // Enable room info and call buttons when we joined a room
             self.titleView?.isUserInteractionEnabled = true
-            self.callOptionsButton.isEnabled = true
+            self.setCallButtonsEnabled(true)
         }
 
         // Files/objects can only be send when we're not offline. While editing the button cancels it instead,
@@ -860,18 +813,19 @@ import SwiftUI
 
         if !room.userCanStartCall, !room.hasCall {
             // Disable call buttons
-            self.callOptionsButton.isEnabled = false
+            self.setCallButtonsEnabled(false)
         }
 
         // Configure inCall state for call button
-        self.configureCallButtonAsInCall(button: callOptionsButton, inCall: room.hasCall)
+        self.configureCallButtonAsInCall(button: audioCallButton, inCall: room.hasCall)
+        self.configureCallButtonAsInCall(button: videoCallButton, inCall: room.hasCall, withVideo: true)
 
         if room.readOnlyState == .readOnly || self.shouldPresentLobbyView() {
             // Hide text input
             self.setTextInputbarHidden(true, animated: self.isVisible)
 
             // Disable call buttons
-            self.callOptionsButton.isEnabled = false
+            self.setCallButtonsEnabled(false)
         } else if !room.canChat {
             // Hide text input
             self.setTextInputbarHidden(true, animated: isVisible)
@@ -887,8 +841,10 @@ import SwiftUI
             self.setChatMessage(self.textInputbar.textView.text)
         }
 
-        // Rebuild the call menu to reflect the current call state
-        self.setupCallOptionsBarButtonMenu(button: self.callOptionsButton)
+        // A connection loss must disable both direct actions, including their custom buttons.
+        if !hasJoinedRoom || offlineMode || !room.supportsCalling {
+            self.setCallButtonsEnabled(false)
+        }
     }
 
     func checkLobbyState() {
@@ -1496,7 +1452,7 @@ import SwiftUI
         }
 
         DispatchQueue.main.async {
-            self.callOptionsButton.hideIndicator()
+            [self.audioCallButton, self.videoCallButton].forEach { $0.hideIndicator() }
         }
     }
 

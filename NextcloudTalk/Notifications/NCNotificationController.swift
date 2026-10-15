@@ -73,15 +73,24 @@ public class NCNotificationController: NSObject, UNUserNotificationCenterDelegat
         }
     }
 
+    // Only call a notification a video call when CallKit has confirmed video metadata.
+    // Missing/older metadata retains the existing generic missed-call wording.
+    static func missedCallBody(displayName: String, hasVideo: Bool) -> String {
+        if hasVideo {
+            let format = NSLocalizedString("Missed video call from %@", comment: "'%@' being the display name of the caller")
+            return "📹 \(String(format: format, displayName))"
+        }
+        let format = NSLocalizedString("Missed call from %@", comment: "'%@' being the display name of the caller")
+        return "☎️ \(String(format: format, displayName))"
+    }
+
     @objc(showLocalNotification:withUserInfo:)
     public func show(_ type: NCLocalNotificationType, withUserInfo userInfo: [AnyHashable: Any]) {
         let content = UNMutableNotificationContent()
 
         switch type {
         case .missedCall:
-            let missedCallTranslation = NSLocalizedString("Missed call from %@", comment: "'%@' being the display name of the caller")
-            let missedCallString = String(format: missedCallTranslation, userInfo[stringForKey: "displayName"] ?? "")
-            content.body = "☎️ \(missedCallString)"
+            content.body = Self.missedCallBody(displayName: userInfo[stringForKey: "displayName"] ?? "", hasVideo: userInfo["hasVideo"] as? Bool == true)
             content.userInfo = userInfo
         case .cancelledCall:
             let cancelledCallString = NSLocalizedString("Cancelled call from another account", comment: "")

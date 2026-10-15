@@ -2587,9 +2587,24 @@ class NCAPIController: NSObject, NKCommonDelegate {
             "userPublicKey": account.userPublicKey
         ]
 
+        #if DEBUG
+        RimaPushDiagnostics.record([
+            "proxy_attempted": true,
+            "combined_token_present": NCKeyChainController.sharedInstance().combinedPushToken() != nil,
+            "identifier_present": !account.deviceIdentifier.isEmpty,
+            "signature_present": !account.deviceSignature.isEmpty,
+            "public_key_present": !account.userPublicKey.isEmpty
+        ])
+        #endif
         NCPushProxySessionManager.shared.post(urlString, parameters: parameters, progress: nil) { _, _ in
+            #if DEBUG
+            RimaPushDiagnostics.record(["proxy_http_status": 200, "proxy_error_code": "NONE", "proxy_error_number": 0])
+            #endif
             completionBlock(nil)
         } failure: { _, error in
+            #if DEBUG
+            RimaPushDiagnostics.errorStatus(error)
+            #endif
             completionBlock(error)
         }
     }

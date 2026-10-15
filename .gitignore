@@ -1,14 +1,37 @@
 # SPDX-FileCopyrightText: 2017 Nextcloud GmbH and Nextcloud contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
 Pods
-Podfile.lock
 NextcloudTalk.xcodeproj/xcuserdata
 NextcloudTalk.xcodeproj/xcshareddata
 NextcloudTalk.xcworkspace/xcuserdata
-NextcloudTalk.xcworkspace/xcshareddata
+NextcloudTalk.xcworkspace/xcshareddata/*
+!NextcloudTalk.xcworkspace/xcshareddata/swiftpm/
+NextcloudTalk.xcworkspace/xcshareddata/swiftpm/*
+!NextcloudTalk.xcworkspace/xcshareddata/swiftpm/Package.resolved
 ThirdParty/WebRTC.xcframework
 .DS_Store
 testResult.xcresult
 dictionary.dic
 DerivedData
 build
+
+# Local tools, builds and account-specific Xcode state
+/build/
+/work/
+/.bundle/
+*.xcresult/
+**/xcuserdata/
+*.xcuserstate
+*.p8
+*.p12
+*.pfx
+*.mobileprovision
+.env
+.env.*
+!.env.example
+
+__pycache__/
+*.pyc
+
+# Generated corresponding-source package, recreated before each store archive.
+NextcloudTalk/Legal/rima.Chat-source.zip

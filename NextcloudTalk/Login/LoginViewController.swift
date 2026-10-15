@@ -49,10 +49,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
         view.backgroundColor = NCAppBranding.brandColor()
 
         // App logo
-        self.appLogoImageView.image = UIImage(named: "loginLogo")
+        self.appLogoImageView.image = UIImage(named: "RimaChatBrandMark")
 
         // Server TextField
         serverTextField.delegate = self
+        serverTextField.text = domain
         serverTextField.textColor = NCAppBranding.brandTextColor()
         serverTextField.tintColor = NCAppBranding.brandTextColor()
         serverTextField.layer.borderColor = NCAppBranding.brandTextColor().cgColor

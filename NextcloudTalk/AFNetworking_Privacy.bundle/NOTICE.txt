@@ -1,0 +1,4 @@
+Privacy declaration maintained by rima Pflege GmbH for source-built AFNetworking 3.2.0.
+Pinned by Podfile.lock; original AFNetworking MIT license retained in dependency source.
+AFURLRequestSerialization.m reads file attributes for a user-selected multipart upload.
+No SDK-owned analytics or tracking endpoint is configured. Application data collection is declared separately for rima.Chat.

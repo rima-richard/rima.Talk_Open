@@ -48,8 +48,8 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     self.layer.cornerRadius = 22.0f;
     [self.layer setMasksToBounds:YES];
 
-    // Fixed gray background instead of a username based color (see nextcloud/spreed#17047)
-    [self setBackgroundColor:[NCAppBranding getDynamicColor:UIColor.systemGrayColor withDarkMode:UIColor.systemGray3Color]];
+    // Visible behind the avatar only; the remote renderer still covers the tile for video.
+    [self setBackgroundColor:[RimaCallAppearance surfaceColor]];
 
     _showOriginalSize = NO;
     UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleZoom)];
@@ -86,6 +86,11 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     [super layoutSubviews];
 
     CGRect bounds = self.bounds;
+
+    // Grow the audio portrait in a large tile, but keep compact group/speaker tiles usable.
+    CGFloat avatarDiameter = MIN(200, MAX(44, MIN(bounds.size.width - 44, bounds.size.height - 110)));
+    self.avatarWidthConstraint.constant = avatarDiameter;
+    self.avatarHeightConstraint.constant = avatarDiameter;
 
     // Usually we have a padding to the side of the cell of 22 (= cornerRadius)
     // But when the cell is really small adjust the padding to be 11 (= cornerRadius / 2)
@@ -135,6 +140,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
 
     dispatch_async(dispatch_get_main_queue(), ^{
         self.peerNameLabel.text = self->_displayName;
+        [(RimaCallAvatarImageView *)self.peerAvatarImageView setFallbackDisplayName:self->_displayName];
     });
 }
 

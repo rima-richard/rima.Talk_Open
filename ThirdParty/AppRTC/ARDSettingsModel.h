@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Returns current video resolution string.
- * If no resolution is in store, default value of 640x480 is returned.
+ * If no resolution is in store, the rima default of 1280x720 (HD) is returned.
  * When defaulting to value, the default is saved in store for consistency reasons.
  */
 - (NSString *)currentVideoResolutionSettingFromStore;

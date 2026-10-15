@@ -36,6 +36,8 @@ extern CGFloat const kCallParticipantCellMinHeight;
 @property (nonatomic, weak) IBOutlet UILabel *peerNameLabel;
 @property (nonatomic, weak) IBOutlet MDCActivityIndicator *activityIndicator;
 @property (nonatomic, weak) IBOutlet AvatarImageView *peerAvatarImageView;
+@property (nonatomic, weak) IBOutlet NSLayoutConstraint *avatarWidthConstraint;
+@property (nonatomic, weak) IBOutlet NSLayoutConstraint *avatarHeightConstraint;
 @property (nonatomic, weak) IBOutlet UIButton *audioOffIndicator;
 @property (nonatomic, weak) IBOutlet UIButton *screensharingIndicator;
 @property (nonatomic, weak) IBOutlet UIButton *raisedHandIndicator;

@@ -19,7 +19,7 @@
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2xo-Od-0bZ">
                         <rect key="frame" x="0.0" y="0.0" width="295" height="232"/>
                     </view>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="zYx-Of-3tH" customClass="AvatarImageView" customModule="NextcloudTalk" customModuleProvider="target">
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="zYx-Of-3tH" customClass="RimaCallAvatarImageView" customModule="NextcloudTalk" customModuleProvider="target">
                         <rect key="frame" x="97.5" y="66" width="100" height="100"/>
                         <constraints>
                             <constraint firstAttribute="width" secondItem="zYx-Of-3tH" secondAttribute="height" multiplier="1:1" id="8TD-LX-PDg"/>
@@ -29,10 +29,6 @@
                     </imageView>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eHf-UZ-Ya0" customClass="MDCActivityIndicator">
                         <rect key="frame" x="97.5" y="66" width="100" height="100"/>
-                        <constraints>
-                            <constraint firstAttribute="height" constant="100" id="TgK-JJ-TAh"/>
-                            <constraint firstAttribute="width" constant="100" id="nsX-XY-5La"/>
-                        </constraints>
                     </view>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="top" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bj2-hS-1pF">
                         <rect key="frame" x="241" y="22" width="32" height="32"/>
@@ -96,6 +92,8 @@
                 </subviews>
             </view>
             <constraints>
+                <constraint firstItem="eHf-UZ-Ya0" firstAttribute="height" secondItem="zYx-Of-3tH" secondAttribute="height" id="TgK-JJ-TAh"/>
+                <constraint firstItem="eHf-UZ-Ya0" firstAttribute="width" secondItem="zYx-Of-3tH" secondAttribute="width" id="nsX-XY-5La"/>
                 <constraint firstAttribute="trailing" secondItem="bj2-hS-1pF" secondAttribute="trailing" constant="22" id="0vQ-dJ-Ozc"/>
                 <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="zYx-Of-3tH" secondAttribute="bottom" constant="22" id="25D-wO-Pd3"/>
                 <constraint firstAttribute="bottom" secondItem="2xo-Od-0bZ" secondAttribute="bottom" id="6BS-bd-V7e"/>
@@ -120,6 +118,8 @@
                 <outlet property="activityIndicator" destination="eHf-UZ-Ya0" id="KEG-cC-sSn"/>
                 <outlet property="audioOffIndicator" destination="vlO-GV-Y3B" id="cIm-dZ-peB"/>
                 <outlet property="peerAvatarImageView" destination="zYx-Of-3tH" id="fkR-av-PMY"/>
+                <outlet property="avatarWidthConstraint" destination="E1w-Vk-9vO" id="rima-avatar-width"/>
+                <outlet property="avatarHeightConstraint" destination="hFb-Kv-gry" id="rima-avatar-height"/>
                 <outlet property="peerNameLabel" destination="D5h-T2-aB9" id="m82-2d-znc"/>
                 <outlet property="peerVideoView" destination="2xo-Od-0bZ" id="YvZ-QP-fUW"/>
                 <outlet property="raisedHandIndicator" destination="BPo-EN-rrM" id="Dwq-96-Waf"/>

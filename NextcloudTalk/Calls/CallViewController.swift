@@ -75,9 +75,7 @@ class CallViewController: UIViewController,
     @IBOutlet public var screensharingView: NCZoomableView!
     @IBOutlet public var closeScreensharingButton: UIButton!
     @IBOutlet public var toggleChatButton: UIButton!
-    @IBOutlet public var waitingView: UIView!
-    @IBOutlet public var waitingLabel: UILabel!
-    @IBOutlet public var avatarBackgroundImageView: AvatarBackgroundImageView!
+    @IBOutlet var waitingView: RimaCallWaitingView!
     @IBOutlet public var titleView: NCChatTitleView!
     @IBOutlet public var callTimeLabel: UILabel!
     @IBOutlet public var screenshareLabelContainer: UIView!
@@ -233,6 +231,16 @@ class CallViewController: UIViewController,
         self.hangUpButton.layer.cornerRadius = self.hangUpButton.frame.height / 2
         self.closeScreensharingButton.layer.cornerRadius = 16
 
+        self.view.backgroundColor = RimaCallAppearance.backgroundColor
+        self.topBarView.backgroundColor = .clear
+        self.bottomBarView.backgroundColor = .clear
+        for button in self.rimaCallControlButtons {
+            button.backgroundColor = UIColor.white.withAlphaComponent(0.12)
+            button.layer.borderColor = UIColor.white.withAlphaComponent(0.16).cgColor
+            button.layer.borderWidth = 1
+            button.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        }
+
         self.collectionView.layer.cornerRadius = 22
         self.collectionView.contentInsetAdjustmentBehavior = .always
 
@@ -374,6 +382,8 @@ class CallViewController: UIViewController,
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+
+        self.hangUpButton.layer.cornerRadius = self.hangUpButton.bounds.height / 2
 
         self.screenshareLabelContainer.layer.cornerRadius = self.screenshareLabelContainer.frame.height / 2
         self.viewModeButton.layer.cornerRadius = self.viewModeButton.frame.height / 2
@@ -1543,13 +1553,10 @@ class CallViewController: UIViewController,
 
     func startPlayingConnectingSound() {
         guard initiator, !connectingSoundAlreadyPlayed,
-              let soundFilePath = Bundle.main.path(forResource: "connecting", ofType: "mp3")
+              let player = RimaCallSounds.outgoingPlayer()
         else { return }
 
-        let soundFileURL = NSURL.fileURL(withPath: soundFilePath)
-
-        self.soundsPlayer = try? AVAudioPlayer(contentsOf: soundFileURL)
-        self.soundsPlayer?.numberOfLoops = -1
+        self.soundsPlayer = player
         self.soundsPlayer?.play()
 
         connectingSoundAlreadyPlayed = true
@@ -1562,13 +1569,7 @@ class CallViewController: UIViewController,
     // MARK: - Waiting screen
 
     func createWaitingScreen() {
-        self.avatarBackgroundImageView.backgroundColor = NCAppBranding.themeColor()
-
-        if self.room.type == .oneToOne {
-            let bgColor = ColorGenerator.shared.usernameToColor(self.room.displayName)
-            self.avatarBackgroundImageView.backgroundColor = bgColor.withAlphaComponent(0.8)
-        }
-
+        self.waitingView.configure(for: self.room)
         self.setWaitingScreenText()
     }
 
@@ -1576,7 +1577,7 @@ class CallViewController: UIViewController,
         var waitingMessage = NSLocalizedString("Waiting for others to join call …", comment: "")
 
         if self.room.type == .oneToOne {
-            waitingMessage = String(format: NSLocalizedString("Waiting for %@ to join call …", comment: ""), self.room.displayName)
+            waitingMessage = NSLocalizedString("Waiting for an answer …", comment: "Call status below the contact name")
         }
 
         if currentCallState == .reconnecting {
@@ -1587,11 +1588,12 @@ class CallViewController: UIViewController,
             waitingMessage = NSLocalizedString("Switching to another conversation …", comment: "")
         }
 
-        self.waitingLabel.text = waitingMessage
+        self.waitingView.statusLabel.text = waitingMessage
     }
 
     func showWaitingScreen() {
         DispatchQueue.main.async {
+            self.waitingView.configure(for: self.room)
             self.setWaitingScreenText()
             self.collectionView.backgroundView = self.waitingView
         }
@@ -1604,6 +1606,21 @@ class CallViewController: UIViewController,
     }
 
     // MARK: - User Interface
+
+    private var rimaCallControlButtons: [UIButton] {
+        [audioMuteButton, videoDisableButton, videoCallButton, speakerButton, reactionButton, lowerHandButton, moreMenuButton]
+    }
+
+    private var callControlsOverflow: Bool {
+        bottomBarButtonStackView.frame.minX < 0 ||
+            bottomBarButtonStackView.frame.maxX + 12 > hangUpButton.frame.minX + 0.5
+    }
+
+    private func updateRimaCallControl(_ button: UIButton, selected: Bool) {
+        button.isSelected = selected
+        button.backgroundColor = selected ? .white : UIColor.white.withAlphaComponent(0.12)
+        button.tintColor = selected ? NCAppBranding.brandColor() : .white
+    }
 
     public func setCallStateForPeersInCall() {
         if self.peersInCall.isEmpty {
@@ -1728,12 +1745,14 @@ class CallViewController: UIViewController,
             }
 
             self.audioMuteButton.accessibilityValue = micStatusString
+            self.updateRimaCallControl(self.audioMuteButton, selected: !isActive)
         }
     }
 
     func setAudioMuteButtonEnabled(_ isEnabled: Bool) {
         DispatchQueue.main.async {
             self.audioMuteButton.isEnabled = isEnabled
+            self.audioMuteButton.alpha = isEnabled ? 1 : 0.4
         }
     }
 
@@ -1750,12 +1769,14 @@ class CallViewController: UIViewController,
             }
 
             self.videoDisableButton.accessibilityValue = cameraStatusString
+            self.updateRimaCallControl(self.videoDisableButton, selected: !isActive)
         }
     }
 
     func setVideoDisableButtonEnabled(_ isEnabled: Bool) {
         DispatchQueue.main.async {
             self.videoDisableButton.isEnabled = isEnabled
+            self.videoDisableButton.alpha = isEnabled ? 1 : 0.4
         }
     }
 
@@ -1799,7 +1820,7 @@ class CallViewController: UIViewController,
                 self.bottomBarView.setNeedsLayout()
                 self.bottomBarView.layoutIfNeeded()
 
-                if self.bottomBarButtonStackView.frame.origin.x < 0 {
+                if self.callControlsOverflow {
                     self.reactionButton.isHidden = true
                 }
             }
@@ -1811,7 +1832,7 @@ class CallViewController: UIViewController,
 
                 // Hide the speaker button to make some more room for higher priority buttons
                 // This should only be the case for iPhone SE (1st Gen) when recording is active and/or hand is raised
-                if self.bottomBarButtonStackView.frame.origin.x < 0 {
+                if self.callControlsOverflow {
                     self.speakerButton.isHidden = true
                 }
             }
@@ -2168,7 +2189,7 @@ class CallViewController: UIViewController,
             self.callTimeLabel.text = String(format: "%02lu:%02lu", minutes, seconds)
         }
 
-        if self.bottomBarButtonStackView.frame.origin.x < 0 {
+        if self.callControlsOverflow {
             self.adjustBars()
         }
 
@@ -2392,6 +2413,7 @@ class CallViewController: UIViewController,
 
             self.speakerButton.accessibilityValue = speakerStatusString
             self.speakerButton.accessibilityHint = NSLocalizedString("Double tap to enable or disable the speaker", comment: "")
+            self.updateRimaCallControl(self.speakerButton, selected: active)
         }
     }
 
@@ -2400,6 +2422,8 @@ class CallViewController: UIViewController,
             self.speakerButton.setImage(nil, for: .normal)
             self.speakerButton.accessibilityValue = NSLocalizedString("AirPlay button", comment: "")
             self.speakerButton.accessibilityHint = NSLocalizedString("Double tap to select different audio routes", comment: "")
+            self.airplayView.frame = self.speakerButton.bounds
+            self.airplayView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
             self.speakerButton.addSubview(self.airplayView)
         }
     }

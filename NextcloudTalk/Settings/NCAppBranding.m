@@ -4,6 +4,7 @@
  */
 
 #import "NCAppBranding.h"
+#import "RimaReleaseConfiguration.h"
 
 #import "TalkAccount.h"
 #import "TalkCapabilities.h"
@@ -21,20 +22,32 @@ typedef enum NCTextColorStyle {
 
 #pragma mark - App configuration
 
-NSString * const talkAppName = @"Nextcloud Talk";
+NSString * const talkAppName = @"rima.Chat";
 NSString * const filesAppName = @"Nextcloud";
 NSString * const copyright = @"© 2026 Nextcloud GmbH";
-NSString * const bundleIdentifier = @"com.nextcloud.Talk";
-NSString * const groupIdentifier = @"group.com.nextcloud.Talk";
-NSString * const appsGroupIdentifier = @"group.com.nextcloud.apps";
-NSString * const pushNotificationServer = @"https://push-notifications.nextcloud.com";
-NSString * const privacyURL = @"https://nextcloud.com/privacy";
-BOOL const isBrandedApp = NO;
+NSString * const bundleIdentifier = @"de.rima-pflege.chat";
+NSString * const groupIdentifier = @"group.de.rima-pflege.chat";
+NSString * const appsGroupIdentifier = @"group.de.rima-pflege.chat.apps";
+#if DEBUG
+NSString * const pushNotificationServer = @"https://talk.rima-pflege.de/push/dev";
+#else
+#if !RIMA_PRODUCTION_PUSH_CONFIGURATION_VERIFIED
+#error rima.Chat production push configuration must be confirmed before a Release build
+#endif
+NSString * const pushNotificationServer = RIMA_PRODUCTION_PUSH_SERVER_URL;
+#endif
+NSString * const privacyURL = @"https://rima-pflege.de/rima-chat/datenschutz";
+NSString * const supportURL = @"https://rima-pflege.de/rima-chat";
+BOOL const isBrandedApp = YES;
 BOOL const multiAccountEnabled = YES;
-BOOL const useAppsGroup = YES;
-BOOL const forceDomain = NO;
-NSString * const domain = nil;
+BOOL const useAppsGroup = NO;
+BOOL const forceDomain = YES;
+NSString * const domain = @"https://talk.rima-pflege.de";
+#if DEBUG
+NSString * const appAlternateVersion = @"25.0.2 · rima.Chat Entwurf 13";
+#else
 NSString * const appAlternateVersion = @"";
+#endif
 
 + (NSString *)getAppVersionString
 {
@@ -48,10 +61,10 @@ NSString * const appAlternateVersion = @"";
 
 #pragma mark - Theming
 
-NSString * const brandColorHex = @"#0082C9";
+NSString * const brandColorHex = @"#006873";
 NSString * const brandTextColorHex = @"#FFFFFF";
 BOOL const customNavigationLogo = NO;
-BOOL const useServerThemimg = YES;
+BOOL const useServerThemimg = NO;
 
 + (UIColor *)brandColor
 {
@@ -132,21 +145,7 @@ BOOL const useServerThemimg = YES;
 
 + (UIImage *)navigationLogoImage
 {
-    if (@available(iOS 26.0, *)) {
-        if (!customNavigationLogo) {
-            return [[UIImage imageNamed:@"navigationLogo"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        }
-    }
-
-    NSString *imageName = @"navigationLogo";
-    if (!customNavigationLogo) {
-        if (useServerThemimg && [self textColorStyleForBackgroundColor:[self themeColor]] == NCTextColorStyleDark) {
-            imageName = @"navigationLogoDark";
-        } else if ([self brandTextColorStyle] == NCTextColorStyleDark) {
-            imageName = @"navigationLogoDark";
-        }
-    }
-    return [UIImage imageNamed:imageName];
+    return [[UIImage systemImageNamed:@"bubble.left.and.bubble.right.fill"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 }
 
 + (UIColor *)placeholderColor

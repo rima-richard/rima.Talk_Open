@@ -24,6 +24,14 @@ extension BaseChatTableViewCell {
 
         guard let messageTextView = self.messageTextView else { return }
 
-        messageTextView.attributedText = message.parsedMarkdownForChat()
+        if usesSolidOutgoingBubble, let parsed = message.parsedMarkdownForChat() {
+            let text = NSMutableAttributedString(attributedString: parsed)
+            text.addAttribute(.foregroundColor, value: UIColor.white, range: NSRange(location: 0, length: text.length))
+            messageTextView.attributedText = text
+            messageTextView.linkTextAttributes = [.foregroundColor: UIColor.white, .underlineStyle: NSUnderlineStyle.single.rawValue]
+        } else {
+            messageTextView.attributedText = message.parsedMarkdownForChat()
+            messageTextView.linkTextAttributes = [.foregroundColor: NCAppBranding.themeColor()]
+        }
     }
 }

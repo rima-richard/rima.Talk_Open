@@ -1,0 +1,7 @@
+{
+  "transparent_background": true,
+  "source": "NextcloudTalk/Images.xcassets/RimaTalkBubble.appiconset/talk-bubble.png",
+  "output": "NextcloudTalk/Images.xcassets/RimaCallKitSymbol.imageset/rima-callkit-symbol.png",
+  "runtime_use": "RimaCallBranding.callKitIconData; 40pt template, white with transparency",
+  "derivation": "Monochrome alpha template derived from the included rima.Chat icon"
+}

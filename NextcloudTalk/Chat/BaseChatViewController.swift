@@ -759,7 +759,7 @@ import Toast
 
     func showSendMessageButton() {
         self.rightButton.setTitle("", for: .normal)
-        self.setInputbarImage(UIImage(systemName: "paperplane"), for: self.rightButton)
+        self.setInputbarImage(UIImage(systemName: "arrow.up"), for: self.rightButton)
         self.rightButton.tag = sendButtonTagMessage
         self.rightButton.accessibilityLabel = NSLocalizedString("Send message", comment: "")
         self.rightButton.accessibilityHint = NSLocalizedString("Double tap to send message", comment: "")
@@ -3466,19 +3466,8 @@ import Toast
             // 4 * right(10) + dateLabel(40)
             width -= 80.0
         } else {
-            // Avatar is already subtracted, but we need to take padding of left(10) into account
-            width -= 10.0
-
-            // MessageTextView has padding of 2*10
-            width -= 20.0
-
-            if isOwnMessage {
-                // For own messages we have a padding of 40 to the avatar view and 10 to the right superview
-                width -= 50.0
-            } else {
-                // For others messages, we have a padding of 10 to the avatar view und 64 to the right superview
-                width -= 74.0
-            }
+            width = ChatBubbleLayout.textWidth(contentWidth: originalWidth + chatMessageCellAvatarHeight,
+                                               isOwnMessage: isOwnMessage, isOneToOne: room.isOneToOne)
         }
 
         self.textViewForSizing.attributedText = messageString
@@ -3492,7 +3481,7 @@ import Toast
 
         height += 15.0 // MessageTextTop(10) + MessageTextBottom(5)
 
-        if (message.isGroupMessage && !message.willShowParentMessageInThread(self.thread)) || message.isSystemMessage || isOwnMessage {
+        if (message.isGroupMessage && !message.willShowParentMessageInThread(self.thread)) || message.isSystemMessage || isOwnMessage || room.isOneToOne {
             if height < chatGroupedMessageCellMinimumHeight {
                 height = chatGroupedMessageCellMinimumHeight
             }
@@ -3550,8 +3539,7 @@ import Toast
         }
 
         if !message.isSystemMessage {
-            // Bubble top(8) + bottom(8)
-            height += 16
+            height += ChatBubbleLayout.topSpacing(for: message, thread: thread) + ChatBubbleLayout.bottomSpacing
 
             // Footer height
             height += 20

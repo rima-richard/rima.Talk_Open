@@ -128,7 +128,7 @@ static NSArray<NSString *> *videoCodecsStaticValues() {
 #pragma mark -
 
 - (NSString *)defaultVideoResolutionSetting {
-  return videoResolutionsStaticValues()[1];
+  return @"1280x720";
 }
 
 - (int)videoResolutionComponentAtIndex:(int)index inString:(NSString *)resolution {

@@ -2995,3 +2995,15 @@
 /* No comment provided by engineer. */
 "↓ New messages" = "↓ New messages";
 
+
+/* Call status below the contact name */
+"Waiting for an answer …" = "Waiting for an answer …";
+
+/* Missed video call notification; %@ is the caller name */
+"Missed video call from %@" = "Missed video call from %@";
+
+/* rima call sounds */
+"Call ringtone" = "Call ringtone";
+
+"Support and report content" = "Support and report content";
+"Source code and licenses" = "Source code and licenses";

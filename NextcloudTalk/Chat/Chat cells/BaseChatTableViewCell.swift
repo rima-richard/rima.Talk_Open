@@ -38,6 +38,21 @@ public let chatReplyMessageCellIdentifier = "chatReplyMessageCellIdentifier"
 public let chatMessageCellMinimumHeight = 45.0
 public let chatGroupedMessageCellMinimumHeight = 25.0
 
+// Shared with the manual row sizing so text wraps at the same width as the visible bubble.
+enum ChatBubbleLayout {
+    static let bottomSpacing: CGFloat = 3
+
+    static func topSpacing(for message: NCChatMessage, thread: NCThread?) -> CGFloat {
+        message.isGroupMessage && !message.willShowParentMessageInThread(thread) ? 3 : 8
+    }
+
+    static func textWidth(contentWidth: CGFloat, isOwnMessage: Bool, isOneToOne: Bool) -> CGFloat {
+        let leading: CGFloat = isOwnMessage ? 64 : (isOneToOne ? 12 : 50)
+        let trailing: CGFloat = isOwnMessage ? 12 : 64
+        return max(1, contentWidth - leading - trailing - 28)
+    }
+}
+
 // File cell
 public let fileMessageCellIdentifier = "fileMessageCellIdentifier"
 public let fileGroupedMessageCellIdentifier = "fileGroupedMessageCellIdentifier"
@@ -65,12 +80,23 @@ public let voiceMessageCellPlayerWidth = 450.0
 public let pollMessageCellIdentifier = "pollMessageCellIdentifier"
 public let pollGroupedMessageCellIdentifier = "pollGroupedMessageCellIdentifier"
 
+final class ChatBubbleView: UIView {
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        // The bubble receives its final bounds after its enclosing stack view has laid out.
+        layer.cornerCurve = .circular
+        layer.cornerRadius = min(20, bounds.height / 2)
+    }
+}
+
 class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, ReactionsViewDelegate {
 
     public static let nibName = "BaseChatTableViewCell"
 
-    // TODO: Reset cache when theming changes
-    static var bubbleColorCache = NSCache<NSString, UIColor>()
+    var usesSolidOutgoingBubble = false
+    var messageMetadataColor: UIColor {
+        .secondaryLabel
+    }
 
     public weak var delegate: BaseChatTableViewCellDelegate?
 
@@ -91,13 +117,14 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     @IBOutlet weak var bubbleView: UIView!
     @IBOutlet weak var bubbleStackView: UIStackView!
+    @IBOutlet weak var bubbleTopConstraint: NSLayoutConstraint!
 
     // Since we use different relations depending on the bubble (other user or app user) we setup
     // the constraints programmatically instead of in interface builder
     lazy var leftBubbleConstraints = {
         return [
             bubbleStackView.leadingAnchor.constraint(equalTo: avatarButton.trailingAnchor, constant: 10),
-            bubbleStackView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -64),
+            bubbleStackView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.safeAreaLayoutGuide.trailingAnchor, constant: -64),
 
             titleLabel.leadingAnchor.constraint(equalTo: headerPart.leadingAnchor, constant: 0),
             titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: headerPart.trailingAnchor, constant: 0)
@@ -106,11 +133,20 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     lazy var rightBubbleConstraints = {
         return [
-            bubbleStackView.leadingAnchor.constraint(greaterThanOrEqualTo: avatarButton.trailingAnchor, constant: 40),
-            bubbleStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            bubbleStackView.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.safeAreaLayoutGuide.leadingAnchor, constant: 64),
+            bubbleStackView.trailingAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.trailingAnchor, constant: -12),
 
             titleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: headerPart.leadingAnchor, constant: 0),
             titleLabel.trailingAnchor.constraint(equalTo: headerPart.trailingAnchor, constant: 0)
+        ]
+    }()
+
+    lazy var privateLeftBubbleConstraints = {
+        return [
+            bubbleStackView.leadingAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.leadingAnchor, constant: 12),
+            bubbleStackView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.safeAreaLayoutGuide.trailingAnchor, constant: -64),
+            titleLabel.leadingAnchor.constraint(equalTo: headerPart.leadingAnchor),
+            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: headerPart.trailingAnchor)
         ]
     }()
 
@@ -177,6 +213,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     }
 
     func commonInit() {
+        titleLabel.font = .preferredFont(forTextStyle: .caption1)
         self.headerPart.isHidden = false
         self.subheaderPart.isHidden = true
         self.quotePart.isHidden = true
@@ -247,6 +284,14 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.dateLabel.text = NCUtils.getTime(fromDate: date)
 
         let isOwnMessage = message.isMessage(from: account.userId)
+        bubbleTopConstraint.constant = ChatBubbleLayout.topSpacing(for: message, thread: thread)
+        bubbleStackView.alignment = isOwnMessage ? .trailing : .leading
+        // Rich cards keep their native contrasting labels and interactive content.
+        usesSolidOutgoingBubble = isOwnMessage && !message.isVoiceMessage && message.poll == nil
+            && message.file() == nil && message.geoLocation() == nil && message.parent == nil
+            && !message.containsURL() && !message.isThreadOriginalMessage() && !message.isDeletedMessage
+            && !message.isObjectShare && !message.message.contains("`")
+        dateLabel.textColor = messageMetadataColor
         let messageActor = message.actor
         let titleLabel = messageActor.attributedDisplayName
 
@@ -292,31 +337,35 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.avatarButton.isHidden = true
         }
 
+        NSLayoutConstraint.deactivate(self.leftBubbleConstraints + self.privateLeftBubbleConstraints + self.rightBubbleConstraints)
         if isOwnMessage {
-            NSLayoutConstraint.deactivate(self.leftBubbleConstraints)
             NSLayoutConstraint.activate(self.rightBubbleConstraints)
+        } else if room.isOneToOne {
+            NSLayoutConstraint.activate(self.privateLeftBubbleConstraints)
         } else {
-            NSLayoutConstraint.deactivate(self.rightBubbleConstraints)
             NSLayoutConstraint.activate(self.leftBubbleConstraints)
         }
 
-        var backgroundColor: UIColor? = .secondarySystemBackground
-
-        if isOwnMessage {
-            backgroundColor = BaseChatTableViewCell.bubbleColorCache.object(forKey: account.accountId as NSString)
-
-            if backgroundColor == nil {
-                backgroundColor = NCAppBranding.elementColorBackground()
-                BaseChatTableViewCell.bubbleColorCache.setObject(backgroundColor!, forKey: account.accountId as NSString)
+        let incomingColor = UIColor { traits in
+            traits.userInterfaceStyle == .dark ? .secondarySystemBackground : .systemGray5
+        }
+        let solidOutgoing = usesSolidOutgoingBubble
+        let outgoingColor = UIColor { traits in
+            if solidOutgoing {
+                return traits.userInterfaceStyle == .dark
+                    ? UIColor(red: 0, green: 0.33, blue: 0.37, alpha: 1)
+                    : UIColor(red: 0, green: 0.408, blue: 0.451, alpha: 1)
             }
-
-            // Ensure titleLabel does not interfere with width calculation (only on devices, not simulator)
+            return traits.userInterfaceStyle == .dark
+                ? UIColor(red: 0.08, green: 0.21, blue: 0.22, alpha: 1)
+                : UIColor(red: 0.89, green: 0.95, blue: 0.95, alpha: 1)
+        }
+        if isOwnMessage || room.isOneToOne {
             self.titleLabel.text = ""
             self.headerPart.isHidden = true
             self.avatarButton.isHidden = true
         }
-
-        self.bubbleView.backgroundColor = backgroundColor
+        self.bubbleView.backgroundColor = isOwnMessage ? outgoingColor : incomingColor
 
         // Make sure the status view is empty, when no delivery state should be set
         self.statusView.subviews.forEach {
@@ -346,7 +395,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.addSystemImageToStatus("bell.slash")
         }
 
-        if isOwnMessage, message.lastEditTimestamp > 0 {
+        if (isOwnMessage || room.isOneToOne), message.lastEditTimestamp > 0 {
             self.addSystemImageToStatus("pencil")
         }
 
@@ -421,7 +470,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     func addSystemImageToStatus(_ systemName: String) {
         let view = UIImageView(frame: .init(x: 0, y: 0, width: 20, height: 14))
-        let image = UIImage(systemName: systemName)?.withTintColor(.secondaryLabel).withRenderingMode(.alwaysOriginal)
+        let image = UIImage(systemName: systemName)?.withTintColor(messageMetadataColor).withRenderingMode(.alwaysOriginal)
 
         view.image = NCUtils.renderAspectImage(image: image, ofSize: .init(width: 20, height: 12), centerImage: true)
         view.contentMode = .scaleAspectFit
@@ -474,7 +523,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
             activityIndicator.radius = 6.0
             activityIndicator.strokeWidth = 1.5
-            activityIndicator.cycleColors = [.secondaryLabel]
+            activityIndicator.cycleColors = [messageMetadataColor]
             activityIndicator.startAnimating()
             activityIndicator.widthAnchor.constraint(equalToConstant: 20).isActive = true
 
@@ -504,7 +553,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
             checkView.image = checkImage
             checkView.contentMode = .scaleAspectFit
-            checkView.tintColor = .secondaryLabel
+            checkView.tintColor = messageMetadataColor
             checkView.widthAnchor.constraint(equalToConstant: 20).isActive = true
 
             self.statusView.addArrangedSubview(checkView)

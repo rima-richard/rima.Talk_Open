@@ -8,6 +8,19 @@ import XCTest
 
 final class UnitTypingIndicatorView: XCTestCase {
 
+    func testDotsFollowTypingEventsAndStayStillOffscreen() {
+        let view = TypingIndicatorView()
+        XCTAssertTrue(view.typingDotsView.isHidden)
+        view.addTyping(userIdentifier: "colleague", displayName: "Team")
+        XCTAssertFalse(view.typingDotsView.isHidden)
+        XCTAssertTrue(view.typingLabel.text?.contains("Team") == true)
+        XCTAssertTrue(view.typingDotsView.subviews.allSatisfy { ($0.layer.animationKeys() ?? []).isEmpty })
+        view.removeTyping(userIdentifier: "colleague")
+        view.updateTypingIndicator()
+        XCTAssertFalse(view.isVisible)
+        XCTAssertTrue(view.typingDotsView.isHidden)
+    }
+
     func testMentionIdFromServerLocal() throws {
         let typingView = TypingIndicatorView()
 

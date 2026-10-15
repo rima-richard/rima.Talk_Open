@@ -150,7 +150,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
             return false
         }
         let scheme = urlComponents.scheme
-        if scheme == "nextcloudtalk" {
+        if scheme == "rimachat" {
             let action = urlComponents.host
             if action == "open-conversation" {
                 NCUserInterfaceController.sharedInstance().presentChatForURL(urlComponents)

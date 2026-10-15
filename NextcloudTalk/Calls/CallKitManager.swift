@@ -60,7 +60,8 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         configuration.maximumCallsPerCallGroup = 1
         configuration.includesCallsInRecents = NCUserDefaults.includeCallsInRecents()
         configuration.supportedHandleTypes = [.phoneNumber, .emailAddress, .generic]
-        configuration.iconTemplateImageData = UIImage(named: "app-logo-callkit")?.pngData()
+        configuration.iconTemplateImageData = RimaCallBranding.callKitIconData()
+        configuration.ringtoneSound = RimaCallTone.selected().fileName
 
         let provider = CXProvider(configuration: configuration)
         self.provider = provider
@@ -68,6 +69,13 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         super.init()
 
         provider.setDelegate(self, queue: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(updateRimaCallTone), name: .rimaCallToneDidChange, object: nil)
+    }
+
+    @objc private func updateRimaCallTone() {
+        let configuration = provider.configuration
+        configuration.ringtoneSound = RimaCallTone.selected().fileName
+        provider.configuration = configuration
     }
 
     public class func isCallKitAvailable() -> Bool {
@@ -351,6 +359,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
             "roomToken": token,
             "displayName": call.displayName,
             "localNotificationType": NCLocalNotificationType.missedCall.rawValue,
+            "hasVideo": call.update?.hasVideo ?? false,
             "accountId": accountId
         ]
 
