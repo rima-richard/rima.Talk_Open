@@ -1,17 +1,27 @@
 {
   "app": "rima.Chat",
   "version": "25.0.2",
-  "build": "13",
-  "edition_tag": "rima-chat-25.0.2-13",
+  "build": "14",
+  "edition_tag": "rima-chat-25.0.2-14",
   "upstream_repository": "https://github.com/nextcloud/talk-ios",
   "upstream_commit": "0231f1c6b6ce51aa13dd9bde5008ae0839e1f8d1",
-  "archived_corresponding_source_zip_sha256": "48beafe8eadbf4dc07ee5a09a144bc76b6a7168f674c9045e22e2a4d0f62916f",
-  "application_source": "Application and AppRTC source copied unchanged from the archived Build 13 source package. Standalone build/publication documentation and helpers adapted separately.",
+  "application_source": "Application, extensions, AppRTC, sounds and test source match the verified Build 14 development/export source. Standalone publication documentation and build helpers are maintained separately.",
   "submodules": {
     "ThirdParty/DRCellSlideGestureRecognizer": "1939fd516708f3938cc5efccba5f944352a41e5e",
     "ThirdParty/SlackTextViewController": "f19066ceea6568fff5c2f3e53aceac2922bd5d7e"
   },
   "history": "Public Nextcloud upstream ancestry retained; no internal rima handoff commit in published ancestry.",
-  "project_file": "CocoaPods 1.16.2 normalized PBX object order and equivalent empty exceptions/inputPaths/outputPaths arrays during the clean setup; no other parsed project differences from Build 13.",
-  "public_repository": "https://github.com/rima-richard/rima.Talk_Open"
+  "project_file": "Build number 14 matches the verified export. CocoaPods formatting and 14 equivalent empty exceptions/inputPaths/outputPaths list differences are the only parsed differences from the development project.",
+  "public_repository": "https://github.com/rima-richard/rima.Talk_Open",
+  "archive_verification": {
+    "signed_app_store_export": "passed",
+    "bundles": 5,
+    "source_manifest_files": 1186,
+    "runtime_and_test_files_compared": 916,
+    "runtime_mismatches": 0,
+    "focused_tests_passed": 69,
+    "physical_build14_acceptance": "pending",
+    "apple_submission": "pending"
+  },
+  "archived_corresponding_source_zip_sha256": "c0df86a21310b3e5cb1820af10c2615bb2a7683891c9f2f4d5672ffdcc200602"
 }

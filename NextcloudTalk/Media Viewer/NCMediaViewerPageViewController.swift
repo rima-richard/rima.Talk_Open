@@ -47,7 +47,6 @@ import SwiftyGif
     private var isDownloading = false
     private var downloadDidFail = false
     private var displayedFileIsValidated = false
-    private var displayedFileFingerprint: String?
     private var lastLaidOutBounds: CGRect?
     private var previewRequest: SDWebImageCombinedOperation?
     private var pendingDownload: DispatchWorkItem?
@@ -61,14 +60,13 @@ import SwiftyGif
 
     private var sharableFileHandlers: [(URL?) -> Void] = []
 
-    // Where the original file ends up, known before it is downloaded. Lets the share sheet build
-    // its activity list while the download is still running.
+    // A nonexistent, unique placeholder supplies only the file type and display name.
     public var expectedFileURL: URL? {
         guard let path = self.message.file()?.path else { return nil }
 
         let fileName = (path as NSString).lastPathComponent
 
-        return URL(fileURLWithPath: (self.fileDownloader.tempDirectoryPath as NSString).appendingPathComponent(fileName))
+        return URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString).appendingPathComponent(fileName)
     }
 
     private lazy var zoomableView = {
@@ -157,11 +155,15 @@ import SwiftyGif
         return videoPlayButton
     }()
 
-    init(message: NCChatMessage, account: TalkAccount) {
+    convenience init(message: NCChatMessage, account: TalkAccount) {
+        self.init(message: message, account: account, fileDownloader: NCChatFileController(account: account))
+    }
+
+    init(message: NCChatMessage, account: TalkAccount, fileDownloader: NCChatFileController) {
         self.message = message
         self.account = account
 
-        self.fileDownloader = NCChatFileController(account: account)
+        self.fileDownloader = fileDownloader
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -259,11 +261,15 @@ import SwiftyGif
     /// downloaded.
     ///
     func requestSharableFile(completion: @escaping (URL?) -> Void) {
-        if let sharableFileURL = self.sharableFileURL {
+        if self.displayedFileIsValidated, let sharableFileURL = self.sharableFileURL,
+           FileManager.default.fileExists(atPath: sharableFileURL.path) {
             completion(sharableFileURL)
             return
         }
 
+        // iOS or cache cleanup may have removed a previously validated original.
+        self.displayedFileIsValidated = false
+        self.sharableFileURL = nil
         self.sharableFileHandlers.append(completion)
 
         // The user is waiting for it now, so skip the delay we normally give the preview
@@ -286,14 +292,8 @@ import SwiftyGif
             return
         }
 
-        // Reuse a file we already downloaded before asking the server whether it is still current.
-        // downloadFile() below validates it and swaps in a new one if it was replaced.
-        if let path = file.path,
-           let cachedURL = self.fileDownloader.cachedFileURL(forFileNamed: (path as NSString).lastPathComponent, expectedSize: file.size ?? 0) {
-
-            self.displayFile(at: cachedURL, isValidated: false)
-            self.flushSharableFileHandlers(with: cachedURL)
-        } else if self.canUsePreview(for: file) {
+        // Local originals are used only after account/file/revision metadata has been validated.
+        if self.canUsePreview(for: file) {
             self.expectsPreview = true
             self.showBlurhashPlaceholder(for: file)
             self.requestPreview(for: file)
@@ -392,8 +392,8 @@ import SwiftyGif
             case .failure(.fileUnavailable(let errorDescription)), .failure(.downloadFailed(let errorDescription)):
                 self.didFailLoadingFile(with: errorDescription)
             case .failure(.cancelled):
-                // We cancelled this download ourselves and already updated our state
-                break
+                self.isDownloading = false
+                self.flushSharableFileHandlers(with: nil)
             }
         }
     }
@@ -420,8 +420,6 @@ import SwiftyGif
             self.handleFailure()
             return
         }
-
-        self.displayedFileFingerprint = self.fingerprint(of: url)
 
         if NCUtils.isVideo(fileType: mimetype) {
             self.sharableFileURL = url
@@ -519,17 +517,6 @@ import SwiftyGif
         } else {
             self.zoomableView.resizeContentView()
         }
-    }
-
-    // Identifies the file we loaded. NCChatFileController replaces a stale cached file, which
-    // changes both values, so an unchanged fingerprint means there is nothing to load again.
-    private func fingerprint(of url: URL) -> String? {
-        guard let attributes = try? FileManager.default.attributesOfItem(atPath: url.path),
-              let modificationDate = attributes[.modificationDate] as? Date,
-              let size = attributes[.size] as? Int
-        else { return nil }
-
-        return "\(modificationDate.timeIntervalSince1970)-\(size)"
     }
 
     private func aspectMatches(_ lhs: CGSize, _ rhs: CGSize) -> Bool {
@@ -665,7 +652,7 @@ import SwiftyGif
     func didChangeDownloadProgress(notification: Notification) {
         DispatchQueue.main.async {
             guard let fileParameter = self.message.file(),
-                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter),
+                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter, accountId: self.account.accountId),
                   receivedStatus.canReportProgress
             else { return }
 
@@ -689,16 +676,6 @@ import SwiftyGif
 
         // The file is on disk, a pending share does not have to wait for it to be decoded
         self.flushSharableFileHandlers(with: url)
-
-        // We might already show this exact file from the optimistic cache check. The server just
-        // confirmed it is still current, so there is nothing to load again.
-        if self.state == .full, self.sharableFileURL == url,
-           let fingerprint = self.displayedFileFingerprint, fingerprint == self.fingerprint(of: url) {
-
-            self.displayedFileIsValidated = true
-            self.setState(.full)
-            return
-        }
 
         self.displayFile(at: url, isValidated: true)
     }

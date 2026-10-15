@@ -60,6 +60,10 @@ class NotificationService: UNNotificationServiceExtension {
         self.contentHandler = contentHandler
         self.bestAttemptContent = request.content.mutableCopy() as? UNMutableNotificationContent
 
+        // APNs metadata may not impersonate the extension's authenticated output, even on fallback.
+        self.bestAttemptContent?.userInfo = NCPushNotificationsUtils.signedEnvelope(from: request.content.userInfo)
+        self.bestAttemptContent?.categoryIdentifier = ""
+
         self.bestAttemptContent?.title = ""
         self.bestAttemptContent?.body = NSLocalizedString("You received a new notification", comment: "")
 
@@ -137,6 +141,8 @@ class NotificationService: UNNotificationServiceExtension {
         }
 
         var userInfo: [String: Any] = [
+            "subject": message,
+            "signature": signature,
             "pushNotification": pushNotification.jsonString,
             "accountId": pushNotification.accountId,
             "notificationId": pushNotification.notificationId
@@ -158,7 +164,7 @@ class NotificationService: UNNotificationServiceExtension {
                 return
             }
 
-            // Add the serverNotification as userInfo as well -> this can later be used to access the actions directly
+            // Presentation metadata only. The app re-verifies the envelope and fetches actions itself.
             userInfo["serverNotification"] = dataDict
             self.bestAttemptContent?.userInfo = userInfo
 

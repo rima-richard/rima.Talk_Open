@@ -1,4 +1,4 @@
-# Building rima.Chat 25.0.2 (13)
+# Building rima.Chat 25.0.2 (14)
 
 This source edition retains the public upstream history and two original pinned submodules. Clone with `--recurse-submodules`.
 
@@ -31,7 +31,7 @@ The checked-in identifiers, app group and signing team describe the rima edition
 
 Release selects rima's production registration URL and retains a configuration guard. Debug selects the development URL. Public client URLs/identifiers are not authentication secrets. These instructions do not authorize operation of rima's services.
 
-The ignored source ZIP is recreated from the pinned source. The included archive script exports locally and does not upload or submit an app.
+The ignored source ZIP is recreated from the pinned source. The included archive script defaults to Build 14 paths, exports locally and does not upload or submit an app. The signed Build 14 App Store export passed signature, production-push configuration and source-correspondence checks. Physical Build 14 acceptance and Apple submission remain pending. If Finder metadata in an iCloud-synced build folder blocks signing, set RIMA_DERIVED_DATA and RIMA_ARCHIVE_PATH to fresh local paths outside the synced folder.
 
 <!-- SPDX-FileCopyrightText: 2026 rima Pflege GmbH -->
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->

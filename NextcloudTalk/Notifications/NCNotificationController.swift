@@ -382,44 +382,67 @@ public class NCNotificationController: NSObject, UNUserNotificationCenterDelegat
         let notificationRequest = response.notification.request
         let userInfo = notificationRequest.content.userInfo
 
-        // Local notification
-        let localNotificationType = NCLocalNotificationType(rawValue: (userInfo["localNotificationType"] as? NSNumber)?.intValue ?? 0)
-
-        // Push notification
-        let notificationString = userInfo["pushNotification"] as? String
-        let notificationAccountId = userInfo["accountId"] as? String
-        var pushNotification: NCPushNotification?
-        if let notificationString {
-            pushNotification = NCPushNotification(fromDecryptedString: notificationString, withAccountId: notificationAccountId)
-        }
-
-        // Server notification (only available if the Notification Service Extension was able to fetch it)
-        let serverNotificationDict = userInfo["serverNotification"] as? [String: Any]
-        let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: notificationAccountId ?? "")
-        let serverNotification = NCNotification(dictionary: serverNotificationDict)
-
-        // Update push notification with server notification
-        pushNotification?.threadId = serverNotification?.threadId ?? 0
-
-        // Handle notification response
-        if let pushNotification {
-            if let textInputResponse = response as? UNTextInputNotificationResponse {
-                pushNotification.responseUserText = textInputResponse.userText
-                self.handlePushNotificationResponse(withUserText: pushNotification)
-            } else if pushNotification.type == .recording {
-                self.handlePushNotificationResponseForRecording(serverNotification, withActionIdentifier: response.actionIdentifier, forAccount: account)
-            } else if pushNotification.type == .federation {
-                self.handlePushNotificationResponseForFederation(serverNotification, withActionIdentifier: response.actionIdentifier, forAccount: account)
-            } else if pushNotification.type == .reminder {
-                self.handlePushNotificationResponseForReminder(serverNotification, withActionIdentifier: response.actionIdentifier, forAccount: account)
+        // A remote payload cannot declare itself local or assert an account identity.
+        if Self.isLocallyScheduled(notificationRequest.trigger) {
+            if let text = userInfo["pushNotification"] as? String,
+               let accountId = userInfo["accountId"] as? String,
+               let push = NCPushNotification(fromDecryptedString: text, withAccountId: accountId) {
+                self.handlePushNotificationResponse(push)
             } else {
-                self.handlePushNotificationResponse(pushNotification)
+                self.handleLocalNotificationResponse(userInfo)
             }
-        } else if let localNotificationType, localNotificationType.rawValue > 0 {
-            self.handleLocalNotificationResponse(notificationRequest.content.userInfo)
+            completionHandler()
+            return
         }
 
-        completionHandler()
+        var accounts: [TalkAccount] = []
+        for case let account as TalkAccount in TalkAccount.allObjects() { accounts.append(account) }
+        guard let push = NCPushNotificationsUtils.verifiedPushNotification(from: userInfo, accounts: accounts),
+              let storedAccount = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: push.accountId) else {
+            completionHandler()
+            return
+        }
+        let account = TalkAccount(value: storedAccount)
+        // Fetch authoritative actions from the signed notification's account, never from userInfo.
+        let task = NCAPIController.shared.getServerNotification(withId: push.notificationId, forAccount: account) { notification, _, error in
+            let serverNotification = error == nil && Self.matches(notification, push: push) ? notification : nil
+            self.handleVerifiedResponse(response, push: push, notification: serverNotification, account: account)
+            completionHandler()
+        }
+        if task == nil {
+            self.handleVerifiedResponse(response, push: push, notification: nil, account: account)
+            completionHandler()
+        }
+    }
+
+    static func isLocallyScheduled(_ trigger: UNNotificationTrigger?) -> Bool {
+        return trigger is UNTimeIntervalNotificationTrigger || trigger is UNCalendarNotificationTrigger
+    }
+
+    static func matches(_ notification: NCNotification?, push: NCPushNotification) -> Bool {
+        guard let notification, notification.notificationId == push.notificationId,
+              notification.app == push.app else { return false }
+        // Federation object IDs describe invitations rather than conversation tokens.
+        if push.type != .federation, let room = push.roomToken, !room.isEmpty {
+            return notification.roomToken == room
+        }
+        return true
+    }
+
+    private func handleVerifiedResponse(_ response: UNNotificationResponse, push: NCPushNotification, notification: NCNotification?, account: TalkAccount) {
+        push.threadId = notification?.threadId ?? 0
+        if let textInputResponse = response as? UNTextInputNotificationResponse, push.type == .chat {
+            push.responseUserText = textInputResponse.userText
+            self.handlePushNotificationResponse(withUserText: push)
+        } else if push.type == .recording {
+            self.handlePushNotificationResponseForRecording(notification, withActionIdentifier: response.actionIdentifier, forAccount: account)
+        } else if push.type == .federation {
+            self.handlePushNotificationResponseForFederation(notification, withActionIdentifier: response.actionIdentifier, forAccount: account)
+        } else if push.type == .reminder {
+            self.handlePushNotificationResponseForReminder(notification, withActionIdentifier: response.actionIdentifier, forAccount: account)
+        } else {
+            self.handlePushNotificationResponse(push)
+        }
     }
 
     private func handlePushNotificationResponse(withUserText pushNotification: NCPushNotification) {
@@ -604,9 +627,10 @@ public class NCNotificationController: NSObject, UNUserNotificationCenterDelegat
                     bgTask.stopBackgroundTask()
                 }
 
-                break
+                return
             }
         }
+        bgTask.stopBackgroundTask()
     }
 
     private func handlePushNotificationResponse(_ pushNotification: NCPushNotification) {

@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
+import CoreFoundation
 import Foundation
 
 public let kRoomTypeVideo = "video"
@@ -87,7 +88,13 @@ public class NCSignalingMessage: NSObject {
     }
 
     public class func messageFromJSONDictionary(_ jsonDict: [AnyHashable: Any]) -> NCSignalingMessage? {
-        let typeString = jsonDict[SignalingKey.type] as? String
+        // Validate before constructing a message: the call controller also uses from/roomType
+        // while matching pending offers, before dispatching to the individual message handlers.
+        guard jsonDict[SignalingKey.sender] == nil,
+              let typeString = jsonDict[SignalingKey.type] as? String,
+              validIncomingMessage(type: typeString, values: jsonDict) else {
+            return nil
+        }
 
         switch typeString {
         case MessageTypeValue.candidate:
@@ -109,15 +116,42 @@ public class NCSignalingMessage: NSObject {
         case MessageTypeValue.reaction:
             return NCReactionMessage(values: jsonDict)
         default:
-            NSLog("Unexpected type: \(typeString ?? "nil")")
+            NSLog("Unexpected signaling message type")
             return nil
         }
     }
 
     public class func messageFromExternalSignalingJSONDictionary(_ jsonDict: [AnyHashable: Any]) -> NCSignalingMessage? {
-        let data = jsonDict[SignalingKey.data] as? [AnyHashable: Any]
+        guard let data = jsonDict[SignalingKey.data] as? [AnyHashable: Any] else { return nil }
 
-        switch data?[SignalingKey.type] as? String {
+        // Recording/control events are server messages, not peer media messages. They do not
+        // require a peer roomType, but their payload must still be usable by their handlers.
+        if data[SignalingKey.type] as? String == MessageTypeValue.recording {
+            guard let recording = data[MessageTypeValue.recording] as? [AnyHashable: Any],
+                  validRecordingStatus(recording[SignalingKey.status]) else { return nil }
+            return NCRecordingMessage(values: jsonDict)
+        }
+
+        let typeString = data[SignalingKey.type] as? String
+        let peerTypes = [MessageTypeValue.unshareScreen, MessageTypeValue.mute, MessageTypeValue.unmute,
+                         MessageTypeValue.nickChanged, MessageTypeValue.raiseHand, MessageTypeValue.reaction,
+                         MessageTypeValue.candidate, MessageTypeValue.offer, MessageTypeValue.answer]
+
+        if !peerTypes.contains(typeString ?? ""), data[SignalingKey.action] as? String == MessageTypeValue.forceMute {
+            guard validControlPayload(data) else { return nil }
+            let sender = jsonDict[SignalingKey.sender] as? [AnyHashable: Any]
+            return NCControlMessage(from: sender?[SignalingKey.externalSessionId] as? String,
+                                    to: data[SignalingKey.to] as? String,
+                                    sid: data[SignalingKey.sid] as? String,
+                                    roomType: data[SignalingKey.roomType] as? String,
+                                    payload: data)
+        }
+
+        guard let sender = jsonDict[SignalingKey.sender] as? [AnyHashable: Any],
+              let typeString,
+              validIncomingMessage(type: typeString, values: jsonDict) else { return nil }
+
+        switch typeString {
         case MessageTypeValue.unshareScreen:
             return NCUnshareScreenMessage(values: jsonDict)
         case MessageTypeValue.mute:
@@ -128,21 +162,14 @@ public class NCSignalingMessage: NSObject {
             return NCNickChangedMessage(values: jsonDict)
         case MessageTypeValue.raiseHand:
             return NCRaiseHandMessage(values: jsonDict)
-        case MessageTypeValue.recording:
-            return NCRecordingMessage(values: jsonDict)
         case MessageTypeValue.reaction:
             return NCReactionMessage(values: jsonDict)
         default:
             break
         }
 
-        if data?[SignalingKey.action] as? String == MessageTypeValue.forceMute {
-            return NCControlMessage(values: jsonDict)
-        }
-
-        let sender = jsonDict[SignalingKey.sender] as? [AnyHashable: Any]
-        if sender?[SignalingKey.type] as? String == SignalingKey.typeSession {
-            switch data?[SignalingKey.type] as? String {
+        if sender[SignalingKey.type] as? String == SignalingKey.typeSession {
+            switch typeString {
             case MessageTypeValue.candidate:
                 return NCICECandidateMessage(values: jsonDict)
             case MessageTypeValue.offer, MessageTypeValue.answer:
@@ -152,8 +179,67 @@ public class NCSignalingMessage: NSObject {
             }
         }
 
-        NSLog("Unexpected external signaling message: \(jsonDict)")
+        NSLog("Unexpected external signaling message type")
         return nil
+    }
+
+    private static func validIncomingMessage(type: String, values: [AnyHashable: Any]) -> Bool {
+        let parsed = parsedValues(from: values)
+
+        if type == MessageTypeValue.control {
+            return validControlPayload(parsed.payload)
+        }
+
+        guard let from = parsed.from, !from.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              parsed.roomType == kRoomTypeVideo || parsed.roomType == kRoomTypeScreen else {
+            return false
+        }
+
+        // unshareScreen deliberately has no payload; its handler only needs the peer identity.
+        if type == MessageTypeValue.unshareScreen { return true }
+        guard let payload = parsed.payload else { return false }
+
+        switch type {
+        case MessageTypeValue.offer, MessageTypeValue.answer:
+            // A mismatched/pranswer payload would otherwise enter the SDP constructor's
+            // unsupported-type assertion, even when the outer message says "offer".
+            return payload[SignalingKey.type] as? String == type &&
+                (payload[SignalingKey.sdp] as? String)?.isEmpty == false
+        case MessageTypeValue.candidate:
+            guard let candidate = payload[MessageTypeValue.candidate] as? [AnyHashable: Any],
+                  candidate["candidate"] is String,
+                  let index = integerValue(candidate["sdpMLineIndex"]), index >= 0, index <= Int32.max else {
+                return false
+            }
+            // An empty candidate is the legitimate end-of-candidates marker. sdpMid is nullable.
+            return candidate["sdpMid"] == nil || candidate["sdpMid"] is NSNull || candidate["sdpMid"] is String
+        case MessageTypeValue.mute, MessageTypeValue.unmute:
+            return ["audio", "video"].contains(payload["name"] as? String ?? "")
+        case MessageTypeValue.nickChanged:
+            return payload["name"] is String
+        case MessageTypeValue.raiseHand:
+            guard let state = payload["state"] as? NSNumber else { return false }
+            return CFGetTypeID(state) == CFBooleanGetTypeID()
+        case MessageTypeValue.reaction:
+            return (payload[SignalingKey.reaction] as? String)?.isEmpty == false
+        default:
+            return false
+        }
+    }
+
+    private static func validControlPayload(_ payload: [AnyHashable: Any]?) -> Bool {
+        return payload?[SignalingKey.action] as? String == MessageTypeValue.forceMute &&
+            (payload?["peerId"] as? String)?.isEmpty == false
+    }
+
+    private static func integerValue(_ value: Any?) -> Int? {
+        guard let number = value as? NSNumber, CFGetTypeID(number) != CFBooleanGetTypeID() else { return nil }
+        return Int(exactly: number.doubleValue)
+    }
+
+    private static func validRecordingStatus(_ value: Any?) -> Bool {
+        if let string = value as? String { return Int(string) != nil }
+        return integerValue(value) != nil
     }
 
     public class func getMessageSid() -> String {

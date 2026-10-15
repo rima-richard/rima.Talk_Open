@@ -2143,24 +2143,48 @@ class NCAPIController: NSObject, NKCommonDelegate {
         try await apiSessionManager.deleteOcs(urlString, account: account)
     }
 
+    static func notificationActionURL(_ link: String?, accountServer: String) -> URL? {
+        guard let link,
+              let target = URLComponents(string: link), let server = URLComponents(string: accountServer),
+              let scheme = server.scheme?.lowercased(), ["https", "http"].contains(scheme),
+              target.scheme?.lowercased() == scheme,
+              let host = server.host, !host.isEmpty,
+              target.host?.lowercased() == host.lowercased(),
+              (target.port ?? (scheme == "https" ? 443 : 80)) == (server.port ?? (scheme == "https" ? 443 : 80)),
+              target.user == nil, target.password == nil, target.fragment == nil,
+              server.user == nil, server.password == nil else { return nil }
+        return target.url
+    }
+
+    // Separate from the general API session: action responses must never redirect credentials or writes.
+    func notificationActionSession(forAccount account: TalkAccount) -> NCAPISessionManager? {
+        guard let authHeader = self.authHeader(forAccount: account) else { return nil }
+        let configuration = URLSessionConfiguration.default
+        configuration.httpCookieStorage = self.getHTTPCookieStorage(forAccountId: account.accountId)
+        let manager = NCAPISessionManager(configuration: configuration)
+        manager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
+        manager.requestSerializer.timeoutInterval = 25
+        manager.setTaskWillPerformHTTPRedirectionBlock { _, _, _, _ in nil }
+        return manager
+    }
+
     public func executeNotificationAction(_ action: NCNotificationAction, forAccount account: TalkAccount, completionBlock: ((_ error: Error?) -> Void)?) {
-        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
-        else { return }
-
-        guard let actionLink = action.actionLink else {
-            print("Trying to execute notification action without actionLink")
-            completionBlock?(NSError(domain: NSCocoaErrorDomain, code: 0))
-
+        guard let url = Self.notificationActionURL(action.actionLink, accountServer: account.server),
+              let apiSessionManager = self.notificationActionSession(forAccount: account) else {
+            completionBlock?(ApiControllerError.preconditionError)
             return
         }
+        let actionLink = url.absoluteString
 
         let success = { (_ task: URLSessionDataTask, _ responseObject: Any?) in
+            apiSessionManager.invalidateSessionCancelingTasks(false)
             if let completionBlock {
                 completionBlock(nil)
             }
         }
 
         let failure = { (_ task: URLSessionDataTask?, _ error: any Error) in
+            apiSessionManager.invalidateSessionCancelingTasks(false)
             if let completionBlock {
                 completionBlock(error)
             }
@@ -2176,6 +2200,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         case .kNotificationActionTypeDelete:
             apiSessionManager.delete(actionLink, parameters: nil, success: success, failure: failure)
         default:
+            apiSessionManager.invalidateSessionCancelingTasks(false)
             print("Trying to execute non-supported notification action type")
             completionBlock?(NSError(domain: NSCocoaErrorDomain, code: 0))
         }

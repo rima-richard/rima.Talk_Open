@@ -4,8 +4,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 # Only archives and exports locally. Never uploads or submits for review.
-RIMA_ARCHIVE_PATH="${RIMA_ARCHIVE_PATH:-$PWD/build/AppStore/rima.Chat-25.0.2-13.xcarchive}"
-RIMA_EXPORT_PATH="${RIMA_EXPORT_PATH:-$PWD/build/AppStore/export-13}"
+RIMA_ARCHIVE_PATH="${RIMA_ARCHIVE_PATH:-$PWD/build/AppStore/rima.Chat-25.0.2-14.xcarchive}"
+RIMA_EXPORT_PATH="${RIMA_EXPORT_PATH:-$PWD/build/AppStore/export-14}"
 RIMA_DERIVED_DATA="${RIMA_DERIVED_DATA:-$PWD/build/StoreDerivedData}"
 RIMA_PACKAGES="${RIMA_PACKAGES:-$PWD/build/SourcePackages}"
 mkdir -p "$PWD/build/AppStore"

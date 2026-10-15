@@ -16,6 +16,7 @@ import Foundation
     public static var cellHeight = 60.0
 
     public var fileParameter: NCMessageFileParameter?
+    public var accountId: String?
     internal var activityIndicator: MDCActivityIndicator?
 
     public override func awakeFromNib() {
@@ -35,6 +36,7 @@ import Foundation
         self.fileNameLabel.text = ""
         self.fileInfoLabel.text = ""
         self.fileParameter = nil
+        self.accountId = nil
 
         self.accessoryView = nil
         self.activityIndicator = nil
@@ -43,8 +45,8 @@ import Foundation
     func didChangeIsDownloading(notification: Notification) {
         DispatchQueue.main.async {
             // Make sure this notification is really for this cell
-            guard let fileParameter = self.fileParameter,
-                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter)
+            guard let fileParameter = self.fileParameter, let accountId = self.accountId,
+                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter, accountId: accountId)
             else { return }
 
             if receivedStatus.isDownloading, self.activityIndicator == nil {
@@ -60,8 +62,8 @@ import Foundation
     func didChangeDownloadProgress(notification: Notification) {
         DispatchQueue.main.async {
             // Make sure this notification is really for this cell
-            guard let fileParameter = self.fileParameter,
-                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter)
+            guard let fileParameter = self.fileParameter, let accountId = self.accountId,
+                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter, accountId: accountId)
             else { return }
 
             if self.activityIndicator != nil {

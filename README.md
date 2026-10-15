@@ -1,6 +1,6 @@
 # rima.Chat · iOS source
 
-Corresponding application source for **rima.Chat 25.0.2 (13)**, the employee communication app of rima Pflege GmbH. The Xcode workspace and scheme retain the upstream name **NextcloudTalk**.
+Corresponding application source for **rima.Chat 25.0.2 (14)**, the employee communication app of rima Pflege GmbH. The Xcode workspace and scheme retain the upstream name **NextcloudTalk**.
 
 This edition includes rima branding, chat layout refinements, direct audio/video actions, the monochrome call screen, round contact images/initials, the wider hang-up button, HD video defaults and rima call tones. It is based on [Nextcloud Talk iOS v25.0.2](https://github.com/nextcloud/talk-ios/tree/0231f1c6b6ce51aa13dd9bde5008ae0839e1f8d1).
 
@@ -19,7 +19,7 @@ The published client configuration contains public service URLs and Apple bundle
 
 ## Source edition
 
-Use tag **rima-chat-25.0.2-13** for this application edition. [PUBLIC-SOURCE.json](PUBLIC-SOURCE.json) records the upstream revision and the source package used to verify the application code. Release documentation and build helpers have been adapted for this standalone source repository; the application and AppRTC source match the archived Build 13 source. The project file contains only CocoaPods formatting and equivalent empty-list normalization, recorded in the manifest.
+Use tag **rima-chat-25.0.2-14** for this application edition. [PUBLIC-SOURCE.json](PUBLIC-SOURCE.json) records the upstream revision and source-package hash from the verified signed Build 14 export. Application and test source match that development source; 69 focused security and regression tests passed. The project differs only in equivalent CocoaPods formatting/empty-list normalization. Release documentation and build helpers are adapted for this standalone repository.
 
 The public upstream history is retained. The separate internal development handoff commit, device reports, operational notes and local build outputs are outside this repository's published history. The original private development checkout is preserved separately.
 

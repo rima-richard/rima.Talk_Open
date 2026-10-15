@@ -817,8 +817,9 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     }
 
     func restoreDownloadState(for fileParameter: NCMessageFileParameter) {
-        guard let fileStatus = ChatFileDownloader.shared.downloadStatus(forFileId: fileParameter.parameterId),
-              fileStatus.isStatus(for: fileParameter),
+        guard let accountId = self.account?.accountId,
+              let fileStatus = ChatFileDownloader.shared.downloadStatus(forFileId: fileParameter.parameterId, accountId: accountId),
+              fileStatus.isStatus(for: fileParameter, accountId: accountId),
               fileStatus.isDownloading
         else { return }
 
@@ -830,8 +831,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     @objc func didChangeIsDownloading(notification: Notification) {
         DispatchQueue.main.async {
             // Make sure this notification is really for this cell
-            guard let fileParameter = self.message?.file(),
-                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter)
+            guard let fileParameter = self.message?.file(), let accountId = self.account?.accountId,
+                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter, accountId: accountId)
             else { return }
 
             if receivedStatus.isDownloading, self.fileActivityIndicator == nil {
@@ -846,8 +847,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     @objc func didChangeDownloadProgress(notification: Notification) {
         DispatchQueue.main.async {
             // Make sure this notification is really for this cell
-            guard let fileParameter = self.message?.file(),
-                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter)
+            guard let fileParameter = self.message?.file(), let accountId = self.account?.accountId,
+                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter, accountId: accountId)
             else { return }
 
             if self.fileActivityIndicator != nil {

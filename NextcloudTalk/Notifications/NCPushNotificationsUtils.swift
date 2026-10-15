@@ -8,6 +8,34 @@ import SwiftyRSA
 @objcMembers
 public class NCPushNotificationsUtils: NSObject {
 
+    /// Only the signed envelope is transport input. Derived account/action metadata is never proof of origin.
+    public static func signedEnvelope(from userInfo: [AnyHashable: Any]) -> [String: String] {
+        var envelope: [String: String] = [:]
+        envelope["subject"] = userInfo["subject"] as? String
+        envelope["signature"] = userInfo["signature"] as? String
+        return envelope
+    }
+
+    public static func verifiedPushNotification(from userInfo: [AnyHashable: Any], accounts: [TalkAccount]) -> NCPushNotification? {
+        guard let message = userInfo["subject"] as? String,
+              let signature = userInfo["signature"] as? String else { return nil }
+
+        for account in accounts {
+            guard let decrypted = decryptPushNotification(withMessageBase64: message, withSignatureBase64: signature, forAccount: account),
+                  let data = decrypted.data(using: .utf8),
+                  let dictionary = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
+                  dictionary["app"] is String else { continue }
+            // Keep malformed signed payloads out of the Objective-C notification parser.
+            let stringFields = ["app", "type", "subject", "id"]
+            guard stringFields.allSatisfy({ dictionary[$0] == nil || dictionary[$0] is String }),
+                  dictionary["nid"] == nil || dictionary["nid"] is NSNumber || dictionary["nid"] is String else { continue }
+            if let notification = NCPushNotification(fromDecryptedString: decrypted, withAccountId: account.accountId) {
+                return notification
+            }
+        }
+        return nil
+    }
+
     public static func decryptPushNotification(withMessageBase64 messageBase64: String, withSignatureBase64 signatureBase64: String, forAccount account: TalkAccount) -> String? {
         do {
             guard let userPublicKeyPem = account.userPublicKey else { return nil }

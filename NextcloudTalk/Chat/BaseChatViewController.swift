@@ -4257,6 +4257,8 @@ import Toast
     }
 
     private func previewFile(with fileStatus: NCChatFileStatus) {
+        guard fileStatus.accountId == self.account.accountId else { return }
+
         if self.isPreviewControllerShown {
             // We are showing a file already, no need to open another one
             return

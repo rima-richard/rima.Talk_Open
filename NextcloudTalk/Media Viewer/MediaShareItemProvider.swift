@@ -18,16 +18,31 @@ class MediaShareItemProvider: UIActivityItemProvider {
     private let placeholderURL: URL
     private let thumbnail: UIImage?
     private let requestFile: (@escaping (URL?) -> Void) -> Void
-    private let timeout: TimeInterval = 60
+    private let timeout: TimeInterval
+    private let stateLock = NSLock()
+    private var failed = false
 
-    private(set) var didFail = false
+    var didFail: Bool {
+        self.stateLock.lock()
+        defer { self.stateLock.unlock() }
+        return self.failed
+    }
 
-    init(placeholderURL: URL, thumbnail: UIImage?, requestFile: @escaping (@escaping (URL?) -> Void) -> Void) {
-        self.placeholderURL = placeholderURL
+    private func fail() -> NSNull {
+        self.stateLock.lock()
+        self.failed = !self.isCancelled
+        self.stateLock.unlock()
+        return NSNull()
+    }
+
+    init(placeholderURL: URL, thumbnail: UIImage?, timeout: TimeInterval = 60, requestFile: @escaping (@escaping (URL?) -> Void) -> Void) {
+        self.placeholderURL = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(UUID().uuidString).appendingPathComponent(placeholderURL.lastPathComponent)
+        self.timeout = timeout
         self.thumbnail = thumbnail
         self.requestFile = requestFile
 
-        super.init(placeholderItem: placeholderURL)
+        super.init(placeholderItem: self.placeholderURL)
     }
 
     ///
@@ -58,14 +73,17 @@ class MediaShareItemProvider: UIActivityItemProvider {
 
     override var item: Any {
         // UIKit calls this on a background thread. Waiting below would deadlock otherwise.
-        guard !Thread.isMainThread else { return self.placeholderURL }
+        guard !Thread.isMainThread, !self.isCancelled else { return self.fail() }
 
         var resolvedURL: URL?
+        let resultLock = NSLock()
         let semaphore = DispatchSemaphore(value: 0)
 
         DispatchQueue.main.async {
             self.requestFile { fileURL in
+                resultLock.lock()
                 resolvedURL = fileURL
+                resultLock.unlock()
                 semaphore.signal()
             }
         }
@@ -80,13 +98,14 @@ class MediaShareItemProvider: UIActivityItemProvider {
             }
         }
 
-        guard let resolvedURL else {
-            self.didFail = !self.isCancelled
+        resultLock.lock()
+        let result = resolvedURL
+        resultLock.unlock()
 
-            // Nothing better to hand over. The activity fails, and the media viewer shows the error.
-            return self.placeholderURL
-        }
+        // A failed, timed-out or cancelled activity must never receive a cache guess.
+        guard !self.isCancelled, Date() < deadline, let result,
+              result.isFileURL, FileManager.default.fileExists(atPath: result.path) else { return self.fail() }
 
-        return resolvedURL
+        return result
     }
 }

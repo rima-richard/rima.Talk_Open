@@ -246,6 +246,8 @@ class DirectoryTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: DirectoryTableViewCell.identifier) as? DirectoryTableViewCell ??
                    DirectoryTableViewCell(style: .default, reuseIdentifier: DirectoryTableViewCell.identifier)
 
+        cell.accountId = NCDatabaseManager.sharedInstance().activeAccount().accountId
+
         // Name and modification date
         cell.fileNameLabel.text = item.fileName
         cell.fileInfoLabel.text = NCUtils.relativeTimeFromDate(date: item.date as Date)
