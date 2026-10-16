@@ -23,7 +23,7 @@
     "prior_build14_security_and_regression_tests_passed": 69,
     "physical_build15_acceptance": "User confirmed foreground and locked-recipient audio/video calls both directions, push with direct reply, and file open/share",
     "acceptance_limits": "No measured WLAN/mobile handover or long-term reliability claim. Earlier Build 14 call failure cause remains unproven; Build 15 adds diagnostics without changing media control or signaling validation.",
-    "apple_submission": "not submitted"
+    "apple_submission": "Version 25.0.2 (15) submitted to App Review on 2026-10-16; status Waiting for Review; manual release retained. No Apple approval or Unlisted approval claimed."
   },
   "archived_corresponding_source_zip_sha256": "3f18ab0b4e0336b7fa891fc3b85447722a3120cdcfc887106ad10325d37880f3"
 }
