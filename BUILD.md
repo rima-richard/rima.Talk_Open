@@ -33,5 +33,7 @@ Release selects rima's production registration URL and retains a configuration g
 
 The ignored source ZIP is recreated from the pinned source. The included archive script defaults to Build 14 paths, exports locally and does not upload or submit an app. The signed Build 15 App Store export passed signature, production-push configuration and source-correspondence checks. The requested two-device calls/push/file-sharing acceptance passed; Version 25.0.2 (15) was submitted to App Review on 2026-10-16 and is waiting for review; manual release remains selected. This does not imply approval or publication. To label a new archive/export for this edition, set `RIMA_ARCHIVE_PATH` and `RIMA_EXPORT_PATH` to fresh Build 15 paths before running the helper. If Finder metadata in an iCloud-synced build folder blocks signing, set RIMA_DERIVED_DATA and RIMA_ARCHIVE_PATH to fresh local paths outside the synced folder.
 
+Apple also acknowledged receipt of the Unlisted distribution request on 2026-10-16. Both App Review and Unlisted decisions remain pending; manual release is retained.
+
 <!-- SPDX-FileCopyrightText: 2026 rima Pflege GmbH -->
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
