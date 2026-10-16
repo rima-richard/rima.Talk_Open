@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
+import AVFoundation
 import WebRTC
 
 @objcMembers
@@ -67,6 +68,7 @@ public class NCAudioController: NSObject, RTCAudioSessionDelegate {
 
     private func changeAudioSessionConfiguration(toMode newMode: AVAudioSession.Mode) {
         WebRTCCommon.shared.assertQueue()
+        self.logCallDiagnostics("configuration-before")
 
         let configuration = RTCAudioSessionConfiguration.webRTC()
         configuration.category = AVAudioSession.Category.playAndRecord.rawValue
@@ -87,6 +89,7 @@ public class NCAudioController: NSObject, RTCAudioSessionDelegate {
         self.rtcAudioSession.unlockForConfiguration()
 
         self.updateRouteInformation()
+        self.logCallDiagnostics("configuration-after")
     }
 
     public func disableAudioSession() {
@@ -120,9 +123,11 @@ public class NCAudioController: NSObject, RTCAudioSessionDelegate {
 
     public func providerDidActivate(audioSession: AVAudioSession) {
         WebRTCCommon.shared.assertQueue()
+        self.logCallDiagnostics("provider-activate-before")
 
         self.rtcAudioSession.audioSessionDidActivate(audioSession)
         self.rtcAudioSession.isAudioEnabled = true
+        self.logCallDiagnostics("provider-activate-after")
 
         NotificationCenter.default.post(name: .AudioSessionWasActivatedByProvider, object: self)
     }
@@ -132,6 +137,14 @@ public class NCAudioController: NSObject, RTCAudioSessionDelegate {
 
         self.rtcAudioSession.audioSessionDidDeactivate(audioSession)
         self.rtcAudioSession.isAudioEnabled = false
+        self.logCallDiagnostics("provider-deactivate-after")
+    }
+
+    func logCallDiagnostics(_ event: String) {
+        WebRTCCommon.shared.assertQueue()
+        let session = rtcAudioSession.session
+        let speaker = session.currentRoute.outputs.contains { $0.portType == .builtInSpeaker }
+        NCLog.log("RimaCallDiagnostic audio event=\(event) manual=\(rtcAudioSession.useManualAudio) active=\(rtcAudioSession.isActive) enabled=\(rtcAudioSession.isAudioEnabled) microphonePermission=\(AVCaptureDevice.authorizationStatus(for: .audio).rawValue) inputs=\(session.currentRoute.inputs.count) outputs=\(session.currentRoute.outputs.count) speaker=\(speaker) sampleRate=\(Int(session.sampleRate))")
     }
 
     // MARK: RTCAudioSessionDelegate

@@ -63,6 +63,42 @@ public class NCPeerConnection: NSObject {
     private var localDataChannel: RTCDataChannel?
     private var remoteDataChannel: RTCDataChannel?
     private var remoteStream: RTCMediaStream?
+    private var scheduledDiagnosticCounters = false
+
+    private var diagnosticRole: String { isMCUPublisherPeer ? "publisher" : "subscriber" }
+
+    private func logDiagnostic(_ event: String) {
+        NCLog.log("RimaCallDiagnostic peer role=\(diagnosticRole) screen=\(roomType == kRoomTypeScreen) \(event)")
+    }
+
+    private func scheduleDiagnosticCounters() {
+        guard !scheduledDiagnosticCounters else { return }
+        scheduledDiagnosticCounters = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+            WebRTCCommon.shared.dispatch { [weak self] in
+                guard let self, let peerConnection = self.peerConnection else { return }
+                NCAudioController.shared.logCallDiagnostics("media-connected")
+                peerConnection.statistics { [weak self] report in
+                    WebRTCCommon.shared.dispatch { [weak self] in
+                        guard let self else { return }
+                        for direction in ["inbound-rtp", "outbound-rtp"] {
+                            for kind in ["audio", "video"] {
+                                let items = report.statistics.values.filter {
+                                    $0.type == direction && ($0.values["kind"] as? String ?? $0.values["mediaType"] as? String) == kind
+                                }
+                                let byteKey = direction == "inbound-rtp" ? "bytesReceived" : "bytesSent"
+                                let packetKey = direction == "inbound-rtp" ? "packetsReceived" : "packetsSent"
+                                let bytes = items.reduce(UInt64(0)) { $0 + (($1.values[byteKey] as? NSNumber)?.uint64Value ?? 0) }
+                                let packets = items.reduce(UInt64(0)) { $0 + (($1.values[packetKey] as? NSNumber)?.uint64Value ?? 0) }
+                                let frames = items.reduce(UInt64(0)) { $0 + (($1.values["framesDecoded"] as? NSNumber)?.uint64Value ?? 0) }
+                                self.logDiagnostic("traffic direction=\(direction) kind=\(kind) streams=\(items.count) bytes=\(bytes) packets=\(packets) decodedFrames=\(frames)")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     init(sessionId: String, sid: String?, andICEServers iceServers: [Any]?, forAudioOnlyCall audioOnly: Bool) {
         WebRTCCommon.shared.assertQueue()
@@ -129,7 +165,8 @@ public class NCPeerConnection: NSObject {
 
         NSLog("Adding a remote ICE candidate.")
         peerConnection?.add(candidate) { error in
-            if error != nil {
+            if let error {
+                self.logDiagnostic("remote-candidate-failed code=\((error as NSError).code)")
                 NSLog("Error while adding a remote ICE candidate.")
             }
         }
@@ -355,6 +392,7 @@ public class NCPeerConnection: NSObject {
 
     private func peerConnectionDidSetRemoteSessionDescription(_ sessionDescription: RTCSessionDescription, error: Error?) {
         if let error {
+            self.logDiagnostic("remote-sdp-failed code=\((error as NSError).code)")
             NSLog("Failed to set remote session description for peer %@. Error: %@", peerId, error.localizedDescription)
             return
         }
@@ -499,6 +537,7 @@ extension NCPeerConnection: RTCPeerConnectionDelegate {
             NSLog("Received %lu video tracks and %lu audio tracks from %@", stream.videoTracks.count, stream.audioTracks.count, self.peerId)
 
             self.remoteStream = stream
+            self.logDiagnostic("remote-tracks video=\(stream.videoTracks.count) audio=\(stream.audioTracks.count) videoDisabled=\(self.isRemoteVideoDisabled) audioDisabled=\(self.isRemoteAudioDisabled)")
 
             if stream.videoTracks.isEmpty {
                 self.isRemoteVideoDisabled = true
@@ -525,6 +564,7 @@ extension NCPeerConnection: RTCPeerConnectionDelegate {
             NSLog("Received %lu video tracks and %lu audio tracks from %@", stream.videoTracks.count, stream.audioTracks.count, self.peerId)
 
             self.remoteStream = stream
+            self.logDiagnostic("receiver-tracks video=\(stream.videoTracks.count) audio=\(stream.audioTracks.count) videoDisabled=\(self.isRemoteVideoDisabled) audioDisabled=\(self.isRemoteAudioDisabled)")
             self.delegate?.peerConnection(self, didAdd: stream)
         }
     }
@@ -547,6 +587,10 @@ extension NCPeerConnection: RTCPeerConnectionDelegate {
     public func peerConnection(_ peerConnection: RTCPeerConnection, didChange newState: RTCIceConnectionState) {
         WebRTCCommon.shared.dispatch {
             NSLog("ICE state with '%@' changed to: %@", self.peerId, self.stringForConnectionState(newState))
+            self.logDiagnostic("ice-state=\(newState.rawValue)")
+            if newState == .connected || newState == .completed {
+                self.scheduleDiagnosticCounters()
+            }
             self.delegate?.peerConnection(self, didChange: newState)
         }
     }

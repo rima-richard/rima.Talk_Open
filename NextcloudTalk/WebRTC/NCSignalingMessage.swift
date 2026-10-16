@@ -56,6 +56,9 @@ enum MessageTypeValue {
 @objcMembers
 public class NCSignalingMessage: NSObject {
 
+    private static let diagnosticLock = NSLock()
+    private static var diagnosticRejections = 0
+
     public private(set) var from: String!
     public private(set) var to: String!
     public private(set) var sid: String?
@@ -93,6 +96,7 @@ public class NCSignalingMessage: NSObject {
         guard jsonDict[SignalingKey.sender] == nil,
               let typeString = jsonDict[SignalingKey.type] as? String,
               validIncomingMessage(type: typeString, values: jsonDict) else {
+            logDiagnosticRejection(jsonDict, transport: "internal")
             return nil
         }
 
@@ -149,7 +153,10 @@ public class NCSignalingMessage: NSObject {
 
         guard let sender = jsonDict[SignalingKey.sender] as? [AnyHashable: Any],
               let typeString,
-              validIncomingMessage(type: typeString, values: jsonDict) else { return nil }
+              validIncomingMessage(type: typeString, values: jsonDict) else {
+            logDiagnosticRejection(jsonDict, transport: "external")
+            return nil
+        }
 
         switch typeString {
         case MessageTypeValue.unshareScreen:
@@ -181,6 +188,35 @@ public class NCSignalingMessage: NSObject {
 
         NSLog("Unexpected external signaling message type")
         return nil
+    }
+
+    // Deliberately emit only bounded type labels and field-presence flags. Never include
+    // session/account identifiers, SDP, ICE addresses, names or arbitrary incoming values.
+    private static func logDiagnosticRejection(_ values: [AnyHashable: Any], transport: String) {
+        diagnosticLock.lock()
+        let shouldLog = diagnosticRejections < 50
+        if shouldLog { diagnosticRejections += 1 }
+        diagnosticLock.unlock()
+        guard shouldLog else { return }
+        NCLog.log("RimaCallDiagnostic rejected-\(transport) " + safeDiagnosticSummary(values))
+    }
+
+    static func safeDiagnosticSummary(_ values: [AnyHashable: Any]) -> String {
+        let data = values[SignalingKey.data] as? [AnyHashable: Any] ?? values
+        let parsed = parsedValues(from: values)
+        let knownTypes = [MessageTypeValue.offer, MessageTypeValue.answer, MessageTypeValue.candidate,
+                          MessageTypeValue.mute, MessageTypeValue.unmute, MessageTypeValue.unshareScreen,
+                          MessageTypeValue.nickChanged, MessageTypeValue.raiseHand, MessageTypeValue.reaction]
+        let rawType = data[SignalingKey.type] as? String ?? ""
+        let type = knownTypes.contains(rawType) ? rawType : "other"
+        let rawRoom = parsed.roomType ?? ""
+        let room = [kRoomTypeVideo, kRoomTypeScreen].contains(rawRoom) ? rawRoom : "other"
+        let payloadType = parsed.payload?[SignalingKey.type] as? String ?? ""
+        let sdpType = [MessageTypeValue.offer, MessageTypeValue.answer, MessageTypeValue.prAnswer].contains(payloadType) ? payloadType : "other"
+        let candidate = parsed.payload?[MessageTypeValue.candidate] as? [AnyHashable: Any]
+        let index = candidate?["sdpMLineIndex"]
+        let indexShape = index == nil ? "missing" : (index is NSNull ? "null" : (integerValue(index) == nil ? "invalid" : "integer"))
+        return "type=\(type) room=\(room) from=\(parsed.from?.isEmpty == false) payload=\(parsed.payload != nil) sdpType=\(sdpType) sdp=\((parsed.payload?[SignalingKey.sdp] as? String)?.isEmpty == false) candidate=\(candidate != nil) index=\(indexShape)"
     }
 
     private static func validIncomingMessage(type: String, values: [AnyHashable: Any]) -> Bool {

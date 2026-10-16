@@ -8,6 +8,23 @@ import WebRTC
 @testable import NextcloudTalk
 
 final class UnitSecuritySignalingTest: XCTestCase {
+    func testCallDiagnosticSummaryDoesNotExposeSignalingContents() {
+        let secret = "sensitive-peer-sdp-address-marker"
+        let values: [AnyHashable: Any] = [
+            "sender": ["sessionid": secret],
+            "data": ["type": "offer", "roomType": "video", "sid": secret,
+                     "payload": ["type": "offer", "sdp": secret, "candidate": ["candidate": secret, "sdpMLineIndex": 0]]]
+        ]
+        let summary = NCSignalingMessage.safeDiagnosticSummary(values)
+        XCTAssertFalse(summary.contains(secret))
+        XCTAssertTrue(summary.contains("type=offer"))
+        XCTAssertTrue(summary.contains("index=integer"))
+
+        let unknown: [AnyHashable: Any] = ["type": secret, "roomType": secret, "from": secret,
+                                         "payload": ["type": secret, "sdp": secret]]
+        XCTAssertFalse(NCSignalingMessage.safeDiagnosticSummary(unknown).contains(secret))
+    }
+
     private let peerId = "synthetic-peer-session"
     private let sdp = "v=0\r\no=- 1 1 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\n"
 
